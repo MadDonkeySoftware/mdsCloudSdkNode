@@ -1,18 +1,23 @@
-const download = require('download');
 const FormData = require('form-data');
 const fs = require('fs');
 const got = require('got');
 const urlJoin = require('url-join');
 const { VError } = require('verror');
 
+const utils = require('./utils');
+
+/**
+ * Initializes a new instance of the File Service client.
+ *
+ * @param {String} serviceUrl The url base that this client should use for service communication.
+ */
 function Client(serviceUrl) {
   this.serviceUrl = serviceUrl;
 }
 
 /**
  * Get the available containers from the container service
- * @returns {String[]} The list of available containers.
- * @throws {VError}
+ * @returns {Promise<String[]|VError>} The list of available containers.
  */
 Client.prototype.getContainers = function getContainers() {
   const url = urlJoin(this.serviceUrl, 'containers');
@@ -43,8 +48,7 @@ Client.prototype.getContainers = function getContainers() {
 /**
  * Creates a new container with the specified name
  * @param {String} name The name of the container to create
- * @returns {Promise<void>}
- * @throws {VError}
+ * @returns {Promise<void|VError>}
  */
 Client.prototype.createContainer = function createContainer(name) {
   const url = urlJoin(this.serviceUrl, 'create', name);
@@ -77,7 +81,7 @@ Client.prototype.createContainer = function createContainer(name) {
               body: resp.body,
             },
           },
-          'An error occurred while creating the container. %s %s');
+          'An error occurred while creating the container.');
       }
     });
 };
@@ -88,8 +92,7 @@ Client.prototype.createContainer = function createContainer(name) {
  * Ex. container/foo/bar where bar can be a file or folder. If bar is a folder the delete
  * is recursive.
  * @param {String} containerOrPath The container name or path to an item in the container.
- * @returns {Promise<void>}
- * @throws {VError}
+ * @returns {Promise<void|VError>}
  */
 Client.prototype.deleteContainerOrPath = function deleteContainerOrPath(containerOrPath) {
   const url = urlJoin(this.serviceUrl, containerOrPath);
@@ -135,9 +138,21 @@ Client.prototype.deleteContainerOrPath = function deleteContainerOrPath(containe
 Client.prototype.downloadFile = function downloadFile(containerPath, destination) {
   const url = urlJoin(this.serviceUrl, 'download', containerPath);
 
-  return download(url, destination);
+  return utils.download(url, destination);
 };
 
+/**
+ * @typedef {Object} DirectoryContents
+ * @property {String[]} DirectoryContents.directories The sub directories of the container or path
+ * @property {String[]} DirectoryContents.files The files residing in the container or path
+ */
+
+/**
+ * Gets a object containing lists for the directories and files contained in the supplied path
+ *
+ * @param {String} containerOrPath
+ * @returns {Promise<DirectoryContents|VError>} Object containing two properties
+ */
 Client.prototype.getContainerContents = function getContainerContents(containerOrPath) {
   const url = urlJoin(this.serviceUrl, 'list', containerOrPath);
   const options = {
@@ -164,6 +179,11 @@ Client.prototype.getContainerContents = function getContainerContents(containerO
     });
 };
 
+/**
+ * @param {String} containerPath The container name and optional path where to upload the file.
+ * @param {String} filePath The path to the file on the local system to upload
+ * @returns {Promise<void|VError>}
+ */
 Client.prototype.uploadFile = function uploadFile(containerPath, filePath) {
   const form = new FormData();
   const url = urlJoin(this.serviceUrl, 'upload', containerPath);
@@ -177,7 +197,6 @@ Client.prototype.uploadFile = function uploadFile(containerPath, filePath) {
     .then((resp) => {
       switch (resp.statusCode) {
         case 200:
-        case 201:
           return Promise.resolve();
         default:
           throw new VError({
