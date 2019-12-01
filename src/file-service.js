@@ -16,10 +16,10 @@ function Client(serviceUrl) {
 }
 
 /**
- * Get the available containers from the container service
+ * List the available containers from the container service
  * @returns {Promise<String[]|VError>} The list of available containers.
  */
-Client.prototype.getContainers = function getContainers() {
+Client.prototype.listContainers = function listContainers() {
   const url = urlJoin(this.serviceUrl, 'containers');
   const options = {
     headers: {
@@ -153,7 +153,7 @@ Client.prototype.downloadFile = function downloadFile(containerPath, destination
  * @param {String} containerOrPath
  * @returns {Promise<DirectoryContents|VError>} Object containing two properties
  */
-Client.prototype.getContainerContents = function getContainerContents(containerOrPath) {
+Client.prototype.listContainerContents = function listContainerContents(containerOrPath) {
   const url = urlJoin(this.serviceUrl, 'list', containerOrPath);
   const options = {
     headers: {
