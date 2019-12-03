@@ -15,7 +15,7 @@ describe('file-service', () => {
     this.sandbox.restore();
   });
 
-  describe('getContainers', () => {
+  describe('listContainers', () => {
     it('returns a list of containers when underlying call succeeds', () => {
       // Arrange
       const expectedResult = ['test', 'test2'];
@@ -27,7 +27,7 @@ describe('file-service', () => {
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.getContainers()
+      return client.listContainers()
         .then((containers) => {
           // Assert
           const getCalls = getStub.getCalls();
@@ -47,7 +47,7 @@ describe('file-service', () => {
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      client.getContainers()
+      client.listContainers()
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           chai.expect(err.message).to.be.equal('An error occurred while obtaining the list of available containers.');
@@ -194,7 +194,7 @@ describe('file-service', () => {
     });
   });
 
-  describe('getContainerContents', () => {
+  describe('listContainerContents', () => {
     it('returns a resolved promise when successful', () => {
       // Arrange
       const expectedResult = {
@@ -209,7 +209,7 @@ describe('file-service', () => {
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.getContainerContents('test')
+      return client.listContainerContents('test')
         .then((data) => {
           // Assert
           const getCalls = getStub.getCalls();
@@ -228,7 +228,7 @@ describe('file-service', () => {
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.getContainerContents('test')
+      return client.listContainerContents('test')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
