@@ -1,6 +1,13 @@
-const got = require('got');
 const urlJoin = require('url-join');
 const { VError } = require('verror');
+const axios = require('axios');
+
+const DEFAULT_OPTIONS = {
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  validateStatus: () => true, // Don't reject on any request
+};
 
 /**
  * Initializes a new instance of the Queue Service client
@@ -23,28 +30,21 @@ function Client(serviceUrl) {
  */
 Client.prototype.createStateMachine = function createStateMachine(definition) {
   const url = urlJoin(this.serviceUrl, 'machine');
-  const body = typeof definition === 'object' ? JSON.stringify(definition) : definition;
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-    body,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.post(url, options)
+  return axios.post(url, definition, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200: {
-          const parsedBody = JSON.parse(resp.body);
+          const parsedBody = resp.data;
           return { status: 'created', uuid: parsedBody.uuid };
         }
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while creating the state machine.');
@@ -77,25 +77,20 @@ Client.prototype.createStateMachine = function createStateMachine(definition) {
 Client.prototype.getDetailsForExecution = function getDetailsForExecution(id) {
   const url = urlJoin(this.serviceUrl, 'execution', id);
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
-          return JSON.parse(resp.body);
+          return resp.data;
         case 404:
           return undefined;
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while obtaining details of the execution.');
@@ -118,25 +113,20 @@ Client.prototype.getDetailsForExecution = function getDetailsForExecution(id) {
 Client.prototype.getStateMachine = function getStateMachine(id) {
   const url = urlJoin(this.serviceUrl, 'machine', id);
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
-          return JSON.parse(resp.body);
+          return resp.data;
         case 404:
           return undefined;
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while obtaining details of the state machine.');
@@ -157,28 +147,21 @@ Client.prototype.getStateMachine = function getStateMachine(id) {
  */
 Client.prototype.invokeStateMachine = function invokeStateMachine(id, data) {
   const url = urlJoin(this.serviceUrl, 'machine', id, 'invoke');
-  const body = typeof data === 'object' ? JSON.stringify(data) : data;
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-    body,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.post(url, options)
+  return axios.post(url, data, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200: {
-          const parsedBody = JSON.parse(resp.body);
+          const parsedBody = resp.data;
           return { status: 'invoked', id: parsedBody.id };
         }
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while invoking the state machine.');
@@ -200,23 +183,18 @@ Client.prototype.invokeStateMachine = function invokeStateMachine(id, data) {
 Client.prototype.listStateMachines = function listStateMachines() {
   const url = urlJoin(this.serviceUrl, 'machines');
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
-          return JSON.parse(resp.body);
+          return resp.data;
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while listing the available state machines.');
@@ -237,28 +215,21 @@ Client.prototype.listStateMachines = function listStateMachines() {
  */
 Client.prototype.updateStateMachine = function updateStateMachine(id, definition) {
   const url = urlJoin(this.serviceUrl, 'machine', id);
-  const body = typeof definition === 'object' ? JSON.stringify(definition) : definition;
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-    body,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.post(url, options)
+  return axios.post(url, definition, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200: {
-          const parsedBody = JSON.parse(resp.body);
+          const parsedBody = resp.data;
           return { status: 'updated', uuid: parsedBody.uuid };
         }
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while updating the state machine.');

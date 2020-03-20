@@ -1,10 +1,17 @@
+const _ = require('lodash');
 const FormData = require('form-data');
 const fs = require('fs');
-const got = require('got');
 const urlJoin = require('url-join');
 const { VError } = require('verror');
-
+const axios = require('axios');
 const utils = require('./utils');
+
+const DEFAULT_OPTIONS = {
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  validateStatus: () => true, // Don't reject on any request
+};
 
 /**
  * Initializes a new instance of the File Service client.
@@ -21,23 +28,18 @@ function Client(serviceUrl) {
  */
 Client.prototype.listContainers = function listContainers() {
   const url = urlJoin(this.serviceUrl, 'containers');
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
-          return JSON.parse(resp.body);
+          return resp.data;
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while obtaining the list of available containers.');
@@ -52,17 +54,11 @@ Client.prototype.listContainers = function listContainers() {
  */
 Client.prototype.createContainer = function createContainer(name) {
   const url = urlJoin(this.serviceUrl, 'create', name);
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-    body: '{}',
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.post(url, options)
+  return axios.post(url, {}, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 201:
           return Promise.resolve();
         case 409:
@@ -77,8 +73,8 @@ Client.prototype.createContainer = function createContainer(name) {
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while creating the container.');
@@ -96,16 +92,11 @@ Client.prototype.createContainer = function createContainer(name) {
  */
 Client.prototype.deleteContainerOrPath = function deleteContainerOrPath(containerOrPath) {
   const url = urlJoin(this.serviceUrl, containerOrPath);
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.delete(url, options)
+  return axios.delete(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 204:
           return Promise.resolve();
         case 409:
@@ -119,8 +110,8 @@ Client.prototype.deleteContainerOrPath = function deleteContainerOrPath(containe
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while removing the container or path.');
@@ -155,23 +146,18 @@ Client.prototype.downloadFile = function downloadFile(containerPath, destination
  */
 Client.prototype.listContainerContents = function listContainerContents(containerOrPath) {
   const url = urlJoin(this.serviceUrl, 'list', containerOrPath);
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
-          return JSON.parse(resp.body);
+          return resp.data;
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while obtaining the content list of a container.');
@@ -186,23 +172,23 @@ Client.prototype.listContainerContents = function listContainerContents(containe
  */
 Client.prototype.uploadFile = function uploadFile(containerPath, filePath) {
   const form = new FormData();
-  const url = urlJoin(this.serviceUrl, 'upload', containerPath);
-  const options = {
-    throwHttpErrors: false,
-    body: form,
-  };
-
   form.append('file', fs.createReadStream(filePath));
-  return got.post(url, options)
+
+  const url = urlJoin(this.serviceUrl, 'upload', containerPath);
+  const options = _.merge({}, DEFAULT_OPTIONS, {
+    headers: form.getHeaders(),
+  });
+
+  return axios.post(url, form, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
           return Promise.resolve();
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while uploading the file to the container.');

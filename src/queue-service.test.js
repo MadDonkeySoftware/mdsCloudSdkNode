@@ -1,5 +1,5 @@
 const chai = require('chai');
-const got = require('got');
+const axios = require('axios');
 const sinon = require('sinon');
 
 
@@ -17,9 +17,9 @@ describe('queue-service', () => {
   describe('createQueue', () => {
     it('returns status created when new container is created', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 201,
+        status: 201,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -30,16 +30,16 @@ describe('queue-service', () => {
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
           chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue');
-          chai.expect(calls[0].args[1].body).to.be.equal(JSON.stringify({ name: 'test-queue' }));
+          chai.expect(calls[0].args[1]).to.be.eql({ name: 'test-queue' });
           chai.expect(data).to.be.eql({ status: 'created' });
         });
     });
 
     it('returns status created when new container is created', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 201,
+        status: 201,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -50,16 +50,16 @@ describe('queue-service', () => {
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
           chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue');
-          chai.expect(calls[0].args[1].body).to.be.equal(JSON.stringify({ name: 'test-queue', resource: 'http://127.0.0.1:8888/invoke' }));
+          chai.expect(calls[0].args[1]).to.be.eql({ name: 'test-queue', resource: 'http://127.0.0.1:8888/invoke' });
           chai.expect(data).to.be.eql({ status: 'created' });
         });
     });
 
     it('returns status exists when container already exists.', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 204,
+        status: 204,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -70,17 +70,17 @@ describe('queue-service', () => {
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
           chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue');
-          chai.expect(calls[0].args[1].body).to.be.equal(JSON.stringify({ name: 'test-queue' }));
+          chai.expect(calls[0].args[1]).to.be.eql({ name: 'test-queue' });
           chai.expect(data).to.be.eql({ status: 'exists' });
         });
     });
 
     it('errors when status is not 200', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 500,
-        body: 'Test error',
+        status: 500,
+        data: 'Test error',
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -96,9 +96,9 @@ describe('queue-service', () => {
   describe('deleteMessage', () => {
     it('returns a resolved promise when successful', () => {
       // Arrange
-      const deleteStub = this.sandbox.stub(got, 'delete');
+      const deleteStub = this.sandbox.stub(axios, 'delete');
       deleteStub.returns(Promise.resolve({
-        statusCode: 200,
+        status: 200,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -115,9 +115,9 @@ describe('queue-service', () => {
 
     it('returns a rejected promise when an unknown error occurs', () => {
       // Arrange
-      const deleteStub = this.sandbox.stub(got, 'delete');
+      const deleteStub = this.sandbox.stub(axios, 'delete');
       deleteStub.returns(Promise.resolve({
-        statusCode: 500,
+        status: 500,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -137,9 +137,9 @@ describe('queue-service', () => {
   describe('deleteQueue', () => {
     it('returns a resolved promise when successful', () => {
       // Arrange
-      const deleteStub = this.sandbox.stub(got, 'delete');
+      const deleteStub = this.sandbox.stub(axios, 'delete');
       deleteStub.returns(Promise.resolve({
-        statusCode: 204,
+        status: 204,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -156,9 +156,9 @@ describe('queue-service', () => {
 
     it('returns a rejected promise when an unknown error occurs', () => {
       // Arrange
-      const deleteStub = this.sandbox.stub(got, 'delete');
+      const deleteStub = this.sandbox.stub(axios, 'delete');
       deleteStub.returns(Promise.resolve({
-        statusCode: 500,
+        status: 500,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -180,9 +180,9 @@ describe('queue-service', () => {
       it('object', () => {
         // Arrange
         const message = { a: '1', b: '2' };
-        const postStub = this.sandbox.stub(got, 'post');
+        const postStub = this.sandbox.stub(axios, 'post');
         postStub.returns(Promise.resolve({
-          statusCode: 200,
+          status: 200,
         }));
         const client = new QueueService('http://127.0.0.1:8080');
 
@@ -193,7 +193,7 @@ describe('queue-service', () => {
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
             chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
-            chai.expect(calls[0].args[1].body).to.be.equal(JSON.stringify(message));
+            chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
       });
@@ -201,9 +201,9 @@ describe('queue-service', () => {
       it('string', () => {
         // Arrange
         const message = 'test message';
-        const postStub = this.sandbox.stub(got, 'post');
+        const postStub = this.sandbox.stub(axios, 'post');
         postStub.returns(Promise.resolve({
-          statusCode: 200,
+          status: 200,
         }));
         const client = new QueueService('http://127.0.0.1:8080');
 
@@ -214,7 +214,7 @@ describe('queue-service', () => {
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
             chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
-            chai.expect(calls[0].args[1].body).to.be.equal(message);
+            chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
       });
@@ -222,9 +222,9 @@ describe('queue-service', () => {
       it('number', () => {
         // Arrange
         const message = 12.34;
-        const postStub = this.sandbox.stub(got, 'post');
+        const postStub = this.sandbox.stub(axios, 'post');
         postStub.returns(Promise.resolve({
-          statusCode: 200,
+          status: 200,
         }));
         const client = new QueueService('http://127.0.0.1:8080');
 
@@ -235,7 +235,7 @@ describe('queue-service', () => {
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
             chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
-            chai.expect(calls[0].args[1].body).to.be.equal(message.toString());
+            chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
       });
@@ -243,9 +243,9 @@ describe('queue-service', () => {
       it('boolean', () => {
         // Arrange
         const message = true;
-        const postStub = this.sandbox.stub(got, 'post');
+        const postStub = this.sandbox.stub(axios, 'post');
         postStub.returns(Promise.resolve({
-          statusCode: 200,
+          status: 200,
         }));
         const client = new QueueService('http://127.0.0.1:8080');
 
@@ -256,7 +256,7 @@ describe('queue-service', () => {
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
             chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
-            chai.expect(calls[0].args[1].body).to.be.equal(message.toString());
+            chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
       });
@@ -264,10 +264,10 @@ describe('queue-service', () => {
 
     it('errors when status is not 200', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 500,
-        body: 'Test error',
+        status: 500,
+        data: 'Test error',
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -290,10 +290,10 @@ describe('queue-service', () => {
         rc: 1,
         sent: 123457.89,
       };
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 200,
-        body: JSON.stringify(message),
+        status: 200,
+        data: message,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -311,10 +311,10 @@ describe('queue-service', () => {
     it('resolves a empty promise when successful and no message exists', () => {
       // Arrange
       const message = {};
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 200,
-        body: JSON.stringify(message),
+        status: 200,
+        data: message,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -331,10 +331,10 @@ describe('queue-service', () => {
 
     it('errors when status is not 200', () => {
       // Arrange
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 500,
-        body: 'Test error',
+        status: 500,
+        data: 'Test error',
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -353,10 +353,10 @@ describe('queue-service', () => {
       const message = {
         resource: 'asdf',
       };
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 200,
-        body: JSON.stringify(message),
+        status: 200,
+        data: message,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -374,10 +374,10 @@ describe('queue-service', () => {
     it('resolves a empty promise when successful and no resource exists', () => {
       // Arrange
       const message = {};
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 200,
-        body: JSON.stringify(message),
+        status: 200,
+        data: message,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -394,10 +394,10 @@ describe('queue-service', () => {
 
     it('errors when status is not 200', () => {
       // Arrange
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 500,
-        body: 'Test error',
+        status: 500,
+        data: 'Test error',
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -416,10 +416,10 @@ describe('queue-service', () => {
       const message = {
         size: 0,
       };
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 200,
-        body: JSON.stringify(message),
+        status: 200,
+        data: message,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -436,10 +436,10 @@ describe('queue-service', () => {
 
     it('errors when status is not 200', () => {
       // Arrange
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 500,
-        body: 'Test error',
+        status: 500,
+        data: 'Test error',
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -459,10 +459,10 @@ describe('queue-service', () => {
         'test1',
         'test2',
       ];
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 200,
-        body: JSON.stringify(message),
+        status: 200,
+        data: message,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -479,10 +479,10 @@ describe('queue-service', () => {
 
     it('errors when status is not 200', () => {
       // Arrange
-      const getStub = this.sandbox.stub(got, 'get');
+      const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
-        statusCode: 500,
-        body: 'Test error',
+        status: 500,
+        data: 'Test error',
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -498,9 +498,9 @@ describe('queue-service', () => {
   describe('updateQueue', () => {
     it('resolves a empty promise when resource is updated and result is successful', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 200,
+        status: 200,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -517,9 +517,9 @@ describe('queue-service', () => {
 
     it('errors when no update actions are provided', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 500,
+        status: 500,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -536,10 +536,10 @@ describe('queue-service', () => {
 
     it('errors when status is not 200', () => {
       // Arrange
-      const postStub = this.sandbox.stub(got, 'post');
+      const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        statusCode: 500,
-        body: 'Test error',
+        status: 500,
+        data: 'Test error',
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 

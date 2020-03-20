@@ -1,6 +1,6 @@
 {
   "name": "@maddonkeysoftware/mds-sdk-node",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "SDK to interact with MDS suite of services",
   "main": "src/index.js",
   "scripts": {
@@ -19,24 +19,23 @@
   },
   "homepage": "https://github.com/MadDonkeySoftware/mds-sdk-node#readme",
   "dependencies": {
-    "download": "^7.1.0",
+    "axios": "^0.19.2",
     "form-data": "^3.0.0",
-    "got": "^9.6.0",
     "lodash": "^4.17.15",
     "url-join": "^4.0.1",
     "verror": "^1.10.0"
   },
   "devDependencies": {
-    "@sinonjs/referee-sinon": "^5.0.0",
+    "@sinonjs/referee-sinon": "^7.0.2",
     "chai": "^4.2.0",
-    "eslint": "^6.6.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
     "jsverify": "^0.8.4",
     "knuth-shuffle": "^1.0.8",
-    "mocha": "^6.2.2",
-    "nyc": "^14.1.1",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.3.0"
+    "mocha": "^7.1.1",
+    "nyc": "^15.0.0",
+    "sinon": "^9.0.1",
+    "sinon-chai": "^3.5.0"
   }
 }

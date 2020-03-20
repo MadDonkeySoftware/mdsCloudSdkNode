@@ -1,7 +1,14 @@
-const got = require('got');
+const _ = require('lodash');
 const urlJoin = require('url-join');
 const { VError } = require('verror');
-const _ = require('lodash');
+const axios = require('axios');
+
+const DEFAULT_OPTIONS = {
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  validateStatus: () => true, // Don't reject on any request
+};
 
 /**
  * Initializes a new instance of the Queue Service client.
@@ -38,17 +45,11 @@ Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
     body.resource = resource;
   }
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-    body: JSON.stringify(body),
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.post(url, options)
+  return axios.post(url, body, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 201:
           return { status: 'created' };
         case 204:
@@ -56,8 +57,8 @@ Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while creating the queue.');
@@ -73,23 +74,18 @@ Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
  */
 Client.prototype.deleteMessage = function deleteMessage(name, id) {
   const url = urlJoin(this.serviceUrl, 'queue', name, 'message', id);
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.delete(url, options)
+  return axios.delete(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
           return Promise.resolve();
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while deleting the message.');
@@ -104,23 +100,18 @@ Client.prototype.deleteMessage = function deleteMessage(name, id) {
  */
 Client.prototype.deleteQueue = function deleteQueue(name) {
   const url = urlJoin(this.serviceUrl, 'queue', name);
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.delete(url, options)
+  return axios.delete(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 204:
           return Promise.resolve();
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while deleting the queue.');
@@ -135,33 +126,19 @@ Client.prototype.deleteQueue = function deleteQueue(name) {
  * @returns {Promise<void|VError>}
  */
 Client.prototype.enqueueMessage = function enqueueMessage(name, message) {
-  const stringifyMessage = (msg) => {
-    switch (typeof msg) {
-      case 'object':
-        return JSON.stringify(msg);
-      default:
-        return msg.toString();
-    }
-  };
   const url = urlJoin(this.serviceUrl, 'queue', name, 'message');
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-    body: stringifyMessage(message),
-  };
 
-  return got.post(url, options)
+  const options = DEFAULT_OPTIONS;
+  return axios.post(url, message, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
           return Promise.resolve();
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while enqueueing the message.');
@@ -185,25 +162,20 @@ Client.prototype.enqueueMessage = function enqueueMessage(name, message) {
  */
 Client.prototype.fetchMessage = function fetchMessage(name) {
   const url = urlJoin(this.serviceUrl, 'queue', name, 'message');
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200: {
-          const parsedBody = JSON.parse(resp.body);
+          const parsedBody = resp.data;
           return parsedBody.id ? parsedBody : Promise.resolve();
         }
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while fetching a message.');
@@ -223,25 +195,20 @@ Client.prototype.fetchMessage = function fetchMessage(name) {
  */
 Client.prototype.getQueueDetails = function getQueueDetails(name) {
   const url = urlJoin(this.serviceUrl, 'queue', name, 'details');
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
           return _.merge({
             resource: undefined,
-          }, JSON.parse(resp.body));
+          }, resp.data);
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while obtaining the details of the queue.');
@@ -261,23 +228,18 @@ Client.prototype.getQueueDetails = function getQueueDetails(name) {
  */
 Client.prototype.getQueueLength = function getQueueLength(name) {
   const url = urlJoin(this.serviceUrl, 'queue', name, 'length');
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
-          return JSON.parse(resp.body);
+          return resp.data;
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while obtaining the size of the queue.');
@@ -291,23 +253,18 @@ Client.prototype.getQueueLength = function getQueueLength(name) {
  */
 Client.prototype.listQueues = function listQueues() {
   const url = urlJoin(this.serviceUrl, 'queues');
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.get(url, options)
+  return axios.get(url, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
-          return JSON.parse(resp.body);
+          return resp.data;
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while listing the available queues.');
@@ -345,24 +302,18 @@ Client.prototype.updateQueue = function updateQueue(name, { resource } = {}) {
     );
   }
 
-  const options = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    throwHttpErrors: false,
-    body: JSON.stringify(body),
-  };
+  const options = DEFAULT_OPTIONS;
 
-  return got.post(url, options)
+  return axios.post(url, body, options)
     .then((resp) => {
-      switch (resp.statusCode) {
+      switch (resp.status) {
         case 200:
           return Promise.resolve();
         default:
           throw new VError({
             info: {
-              statusCode: resp.statusCode,
-              body: resp.body,
+              status: resp.status,
+              body: resp.data,
             },
           },
           'An error occurred while updating the queue.');
