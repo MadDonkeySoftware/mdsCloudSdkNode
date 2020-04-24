@@ -10,7 +10,9 @@ let SINGLETON;
  *
  * @param {*} { qsUrl, smUrl, fsUrl } The default URIs utilized by child clients.
  */
-function Sdk({ qsUrl, smUrl, fsUrl, nsUrl }) {
+function Sdk({
+  qsUrl, smUrl, fsUrl, nsUrl,
+}) {
   this.qsUrl = qsUrl;
   this.smUrl = smUrl;
   this.fsUrl = fsUrl;
@@ -21,8 +23,12 @@ function Sdk({ qsUrl, smUrl, fsUrl, nsUrl }) {
  * Initializes the global set of service endpoints clients will use.
  * @param {Object} obj Object containing service endpoint urls.
  */
-const initialize = ({ qsUrl, smUrl, fsUrl, nsUrl } = {}) => {
-  SINGLETON = new Sdk({ qsUrl, smUrl, fsUrl, nsUrl });
+const initialize = ({
+  qsUrl, smUrl, fsUrl, nsUrl,
+} = {}) => {
+  SINGLETON = new Sdk({
+    qsUrl, smUrl, fsUrl, nsUrl,
+  });
 };
 
 /**

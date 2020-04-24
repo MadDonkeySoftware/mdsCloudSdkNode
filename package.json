@@ -1,5 +1,5 @@
 {
-  "name": "@maddonkeysoftware/mds-sdk-node",
+  "name": "@maddonkeysoftware/mds-cloud-sdk-node",
   "version": "0.0.5",
   "description": "SDK to interact with MDS suite of services",
   "main": "src/index.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MadDonkeySoftware/mds-sdk-node.git"
+    "url": "git+https://github.com/MadDonkeySoftware/mdsCloudSdkNode.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MadDonkeySoftware/mds-sdk-node/issues"
+    "url": "https://github.com/MadDonkeySoftware/mdsCloudSdkNode/issues"
   },
-  "homepage": "https://github.com/MadDonkeySoftware/mds-sdk-node#readme",
+  "homepage": "https://github.com/MadDonkeySoftware/mdsCloudSdkNode#readme",
   "dependencies": {
     "axios": "^0.19.2",
     "form-data": "^3.0.0",
@@ -31,13 +31,13 @@
     "chai": "^4.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-import": "^2.20.2",
     "jsverify": "^0.8.4",
     "knuth-shuffle": "^1.0.8",
     "mocha": "^7.1.1",
-    "nyc": "^15.0.0",
+    "nyc": "^15.0.1",
     "proxyquire": "^2.1.3",
-    "sinon": "^9.0.1",
+    "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0"
   }
 }
