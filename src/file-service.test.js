@@ -4,7 +4,7 @@ const axios = require('axios');
 
 
 const FileService = require('./file-service');
-const utils = require('./utils');
+const utils = require('./lib/utils');
 
 describe('file-service', () => {
   beforeEach(() => {
@@ -47,7 +47,7 @@ describe('file-service', () => {
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      client.listContainers()
+      return client.listContainers()
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           chai.expect(err.message).to.be.equal('An error occurred while obtaining the list of available containers.');

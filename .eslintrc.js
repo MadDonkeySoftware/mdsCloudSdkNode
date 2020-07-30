@@ -10,7 +10,14 @@ module.exports = {
         "ecmaVersion": 2018
     },
     "rules": {
-        "no-underscore-dangle": "off"
+        "no-underscore-dangle": "off",
+        "max-len": ["error", 100, 2, {
+            ignoreUrls: true,
+            ignoreComments: true,
+            ignoreRegExpLiterals: true,
+            ignoreStrings: true,
+            ignoreTemplateLiterals: true,
+        }],
     },
     "globals": {
         "Atomics": "readonly",
