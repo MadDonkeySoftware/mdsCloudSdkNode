@@ -4,7 +4,7 @@ const fs = require('fs');
 const urlJoin = require('url-join');
 const { VError } = require('verror');
 const axios = require('axios');
-const utils = require('./utils');
+const utils = require('./lib/utils');
 
 const DEFAULT_OPTIONS = {
   headers: {

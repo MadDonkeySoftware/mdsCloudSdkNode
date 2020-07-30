@@ -9,7 +9,8 @@
     "src/**/*.js"
   ],
   "exclude": [
-    "src/**/*.test.js"
+    "src/**/*.test.js",
+    "src/lib/utils.js"
   ],
   "ignore-class-method": "methodToIgnore",
   "reporter": [
