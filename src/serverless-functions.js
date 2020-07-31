@@ -140,6 +140,9 @@ Client.prototype.invokeFunction = function invokeFunction(id, payload, isAsync) 
         case 200: {
           return resp.data;
         }
+        case 202: {
+          return undefined;
+        }
         default:
           throw new VError({
             info: {
