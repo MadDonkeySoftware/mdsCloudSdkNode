@@ -126,10 +126,11 @@ Client.prototype.deleteFunction = function deleteFunction(id) {
  * Invoke a function
  * @param {String} id The identifier of the function to invoke
  * @param {*} payload The input supplied to the function. Suggested practice is to use an object.
+ * @param {boolean} [isAsync] True to invoke the function and not wait for the result.
  * @returns {Promise<InvokeFunctionResponse|VError>}
  */
-Client.prototype.invokeFunction = function invokeFunction(id, payload) {
-  const url = urlJoin(this.serviceUrl, 'v1/invoke', id);
+Client.prototype.invokeFunction = function invokeFunction(id, payload, isAsync) {
+  const url = `${urlJoin(this.serviceUrl, 'v1/invoke', id)}${isAsync ? '?async=true' : ''}`;
 
   const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
 
