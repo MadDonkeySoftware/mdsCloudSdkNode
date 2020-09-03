@@ -37,7 +37,7 @@ Client.prototype.createFunction = function createStateMachine(name) {
       switch (resp.status) {
         case 201: {
           const parsedBody = resp.data;
-          return { status: 'created', id: parsedBody.id };
+          return { status: 'created', id: parsedBody.orid || parsedBody.id };
         }
         default:
           throw new VError({

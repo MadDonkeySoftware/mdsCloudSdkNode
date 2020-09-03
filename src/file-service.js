@@ -27,7 +27,7 @@ function Client(serviceUrl) {
  * @returns {Promise<String[]|VError>} The list of available containers.
  */
 Client.prototype.listContainers = function listContainers() {
-  const url = urlJoin(this.serviceUrl, 'containers');
+  const url = urlJoin(this.serviceUrl, 'v1', 'containers');
   const options = DEFAULT_OPTIONS;
 
   return axios.get(url, options)
@@ -53,7 +53,7 @@ Client.prototype.listContainers = function listContainers() {
  * @returns {Promise<void|VError>}
  */
 Client.prototype.createContainer = function createContainer(name) {
-  const url = urlJoin(this.serviceUrl, 'create', name);
+  const url = urlJoin(this.serviceUrl, 'v1', 'create', name);
   const options = DEFAULT_OPTIONS;
 
   return axios.post(url, {}, options)
@@ -91,7 +91,7 @@ Client.prototype.createContainer = function createContainer(name) {
  * @returns {Promise<void|VError>}
  */
 Client.prototype.deleteContainerOrPath = function deleteContainerOrPath(containerOrPath) {
-  const url = urlJoin(this.serviceUrl, containerOrPath);
+  const url = urlJoin(this.serviceUrl, 'v1', containerOrPath);
   const options = DEFAULT_OPTIONS;
 
   return axios.delete(url, options)
@@ -127,7 +127,7 @@ Client.prototype.deleteContainerOrPath = function deleteContainerOrPath(containe
  * @returns {Promise<Buffer>}
  */
 Client.prototype.downloadFile = function downloadFile(containerPath, destination) {
-  const url = urlJoin(this.serviceUrl, 'download', containerPath);
+  const url = urlJoin(this.serviceUrl, 'v1', 'download', containerPath);
 
   return utils.download(url, destination);
 };
@@ -145,7 +145,7 @@ Client.prototype.downloadFile = function downloadFile(containerPath, destination
  * @returns {Promise<DirectoryContents|VError>} Object containing two properties
  */
 Client.prototype.listContainerContents = function listContainerContents(containerOrPath) {
-  const url = urlJoin(this.serviceUrl, 'list', containerOrPath);
+  const url = urlJoin(this.serviceUrl, 'v1', 'list', containerOrPath);
   const options = DEFAULT_OPTIONS;
 
   return axios.get(url, options)
@@ -174,7 +174,7 @@ Client.prototype.uploadFile = function uploadFile(containerPath, filePath) {
   const form = new FormData();
   form.append('file', fs.createReadStream(filePath));
 
-  const url = urlJoin(this.serviceUrl, 'upload', containerPath);
+  const url = urlJoin(this.serviceUrl, 'v1', 'upload', containerPath);
   const options = _.merge({}, DEFAULT_OPTIONS, {
     headers: form.getHeaders(),
   });
