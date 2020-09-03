@@ -32,7 +32,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = getStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/containers');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/containers');
           chai.expect(containers).to.be.eql(expectedResult);
         });
     });
@@ -70,7 +70,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/create/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/create/test');
           chai.expect(data).to.be.equal(undefined);
         });
     });
@@ -90,7 +90,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/create/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/create/test');
           chai.expect(err.message).to.be.equal('Container with the name "test" already exists.');
         });
     });
@@ -110,7 +110,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/create/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/create/test');
           chai.expect(err.message).to.be.equal('An error occurred while creating the container.');
         });
     });
@@ -131,7 +131,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/test');
           chai.expect(data).to.be.equal(undefined);
         });
     });
@@ -151,7 +151,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/test');
           chai.expect(err.message).to.be.equal('An error occurred while removing the container or path.');
         });
     });
@@ -171,7 +171,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/test');
           chai.expect(err.message).to.be.equal('An error occurred while removing the container or path.');
         });
     });
@@ -214,7 +214,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = getStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/list/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/list/test');
           chai.expect(data).to.be.eql(expectedResult);
         });
     });
@@ -234,7 +234,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = getStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/list/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/list/test');
           chai.expect(err.message).to.be.equal('An error occurred while obtaining the content list of a container.');
         });
     });
@@ -255,7 +255,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/upload/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/upload/test');
           chai.expect(data).to.be.eql(undefined);
         });
     });
@@ -275,7 +275,7 @@ describe('file-service', () => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/upload/test');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/upload/test');
           chai.expect(err.message).to.be.equal('An error occurred while uploading the file to the container.');
         });
     });
