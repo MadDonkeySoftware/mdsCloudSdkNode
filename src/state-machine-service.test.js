@@ -21,7 +21,7 @@ describe('state-machine-service', () => {
         const definition = { a: 'a', b: 'b' };
         postStub.returns(Promise.resolve({
           status: 200,
-          data: { uuid: 'abcde12345' },
+          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
         }));
         const client = new StateMachineService('http://127.0.0.1:8080');
 
@@ -31,9 +31,9 @@ describe('state-machine-service', () => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine');
             chai.expect(calls[0].args[1]).to.be.eql(definition);
-            chai.expect(data).to.be.eql({ status: 'created', uuid: 'abcde12345' });
+            chai.expect(data).to.be.eql({ status: 'created', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
           });
       });
 
@@ -43,7 +43,7 @@ describe('state-machine-service', () => {
         const definition = { a: 'a', b: 'b' };
         postStub.returns(Promise.resolve({
           status: 200,
-          data: { uuid: 'abcde12345' },
+          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
         }));
         const client = new StateMachineService('http://127.0.0.1:8080');
 
@@ -53,9 +53,9 @@ describe('state-machine-service', () => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine');
             chai.expect(calls[0].args[1]).to.be.equal(JSON.stringify(definition));
-            chai.expect(data).to.be.eql({ status: 'created', uuid: 'abcde12345' });
+            chai.expect(data).to.be.eql({ status: 'created', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
           });
       });
     });
@@ -90,12 +90,12 @@ describe('state-machine-service', () => {
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getDetailsForExecution('test-123')
+      return client.getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/execution/test-123');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123');
           chai.expect(data).to.be.eql(definition);
         });
     });
@@ -109,12 +109,12 @@ describe('state-machine-service', () => {
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getDetailsForExecution('test-123')
+      return client.getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/execution/test-123');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123');
           chai.expect(data).to.be.eql(undefined);
         });
     });
@@ -149,12 +149,12 @@ describe('state-machine-service', () => {
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getStateMachine('test-123')
+      return client.getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine/test-123');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123');
           chai.expect(data).to.be.eql(definition);
         });
     });
@@ -168,12 +168,12 @@ describe('state-machine-service', () => {
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getStateMachine('test-123')
+      return client.getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine/test-123');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123');
           chai.expect(data).to.be.eql(undefined);
         });
     });
@@ -204,19 +204,19 @@ describe('state-machine-service', () => {
         const argData = { a: 'a', b: 'b' };
         postStub.returns(Promise.resolve({
           status: 200,
-          data: { id: 'abcde12345' },
+          data: { orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' },
         }));
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.invokeStateMachine('test-123', argData)
+        return client.invokeStateMachine('orid:1:mdsCloud:::1:sm:test-123', argData)
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine/test-123/invoke');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke');
             chai.expect(calls[0].args[1]).to.be.eql(argData);
-            chai.expect(data).to.be.eql({ status: 'invoked', id: 'abcde12345' });
+            chai.expect(data).to.be.eql({ status: 'invoked', orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' });
           });
       });
 
@@ -226,19 +226,19 @@ describe('state-machine-service', () => {
         const argData = { a: 'a', b: 'b' };
         postStub.returns(Promise.resolve({
           status: 200,
-          data: { id: 'abcde12345' },
+          data: { orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' },
         }));
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.invokeStateMachine('test-123', JSON.stringify(argData))
+        return client.invokeStateMachine('orid:1:mdsCloud:::1:sm:test-123', JSON.stringify(argData))
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine/test-123/invoke');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke');
             chai.expect(calls[0].args[1]).to.be.equal(JSON.stringify(argData));
-            chai.expect(data).to.be.eql({ status: 'invoked', id: 'abcde12345' });
+            chai.expect(data).to.be.eql({ status: 'invoked', orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' });
           });
       });
     });
@@ -278,7 +278,7 @@ describe('state-machine-service', () => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machines');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machines');
           chai.expect(data).to.be.eql(results);
         });
     });
@@ -309,19 +309,19 @@ describe('state-machine-service', () => {
         const definition = { a: 'a', b: 'b' };
         postStub.returns(Promise.resolve({
           status: 200,
-          data: { uuid: 'abcde12345' },
+          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
         }));
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.updateStateMachine('abcde12345', definition)
+        return client.updateStateMachine('orid:1:mdsCloud:::1:sm:abcde12345', definition)
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine/abcde12345');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345');
             chai.expect(calls[0].args[1]).to.be.eql(definition);
-            chai.expect(data).to.be.eql({ status: 'updated', uuid: 'abcde12345' });
+            chai.expect(data).to.be.eql({ status: 'updated', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
           });
       });
 
@@ -331,19 +331,19 @@ describe('state-machine-service', () => {
         const definition = { a: 'a', b: 'b' };
         postStub.returns(Promise.resolve({
           status: 200,
-          data: { uuid: 'abcde12345' },
+          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
         }));
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.updateStateMachine('abcde12345', JSON.stringify(definition))
+        return client.updateStateMachine('orid:1:mdsCloud:::1:sm:abcde12345', JSON.stringify(definition))
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/machine/abcde12345');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345');
             chai.expect(calls[0].args[1]).to.be.equal(JSON.stringify(definition));
-            chai.expect(data).to.be.eql({ status: 'updated', uuid: 'abcde12345' });
+            chai.expect(data).to.be.eql({ status: 'updated', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
           });
       });
     });

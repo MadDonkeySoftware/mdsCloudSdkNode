@@ -29,7 +29,7 @@ describe('queue-service', () => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue');
           chai.expect(calls[0].args[1]).to.be.eql({ name: 'test-queue' });
           chai.expect(data).to.be.eql({ status: 'created' });
         });
@@ -49,7 +49,7 @@ describe('queue-service', () => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue');
           chai.expect(calls[0].args[1]).to.be.eql({ name: 'test-queue', resource: 'http://127.0.0.1:8888/invoke' });
           chai.expect(data).to.be.eql({ status: 'created' });
         });
@@ -59,7 +59,7 @@ describe('queue-service', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(Promise.resolve({
-        status: 204,
+        status: 200,
       }));
       const client = new QueueService('http://127.0.0.1:8080');
 
@@ -69,7 +69,7 @@ describe('queue-service', () => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue');
           chai.expect(calls[0].args[1]).to.be.eql({ name: 'test-queue' });
           chai.expect(data).to.be.eql({ status: 'exists' });
         });
@@ -108,7 +108,7 @@ describe('queue-service', () => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message/12345');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message/12345');
           chai.expect(data).to.be.equal(undefined);
         });
     });
@@ -128,7 +128,7 @@ describe('queue-service', () => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message/12345');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message/12345');
           chai.expect(err.message).to.be.equal('An error occurred while deleting the message.');
         });
     });
@@ -149,7 +149,7 @@ describe('queue-service', () => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue');
           chai.expect(data).to.be.equal(undefined);
         });
     });
@@ -169,7 +169,7 @@ describe('queue-service', () => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue');
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue');
           chai.expect(err.message).to.be.equal('An error occurred while deleting the queue.');
         });
     });
@@ -192,7 +192,7 @@ describe('queue-service', () => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message');
             chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
@@ -213,7 +213,7 @@ describe('queue-service', () => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message');
             chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
@@ -234,7 +234,7 @@ describe('queue-service', () => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message');
             chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
@@ -255,7 +255,7 @@ describe('queue-service', () => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
+            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message');
             chai.expect(calls[0].args[1]).to.be.equal(message);
             chai.expect(data).to.be.eql(undefined);
           });
@@ -303,7 +303,7 @@ describe('queue-service', () => {
           // Assert
           const calls = getStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message');
           chai.expect(data).to.be.eql(message);
         });
     });
@@ -324,7 +324,7 @@ describe('queue-service', () => {
           // Assert
           const calls = getStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/message');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/message');
           chai.expect(data).to.be.eql(undefined);
         });
     });
@@ -366,7 +366,7 @@ describe('queue-service', () => {
           // Assert
           const calls = getStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/details');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/details');
           chai.expect(data).to.be.eql(message);
         });
     });
@@ -387,7 +387,7 @@ describe('queue-service', () => {
           // Assert
           const calls = getStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/details');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/details');
           chai.expect(data).to.be.eql({ resource: undefined });
         });
     });
@@ -429,7 +429,7 @@ describe('queue-service', () => {
           // Assert
           const calls = getStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue/length');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/length');
           chai.expect(data).to.be.eql(message);
         });
     });
@@ -472,7 +472,7 @@ describe('queue-service', () => {
           // Assert
           const calls = getStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queues');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queues');
           chai.expect(data).to.be.eql(message);
         });
     });
@@ -510,7 +510,7 @@ describe('queue-service', () => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/queue/test-queue');
+          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue');
           chai.expect(data).to.be.eql(undefined);
         });
     });

@@ -20,7 +20,7 @@ function Client(serviceUrl) {
 
 /**
  * @typedef {Object} CreateStateMachineResponse
- * @property {String} uuid The unique identifier of the newly created state machine
+ * @property {String} orid The unique identifier of the newly created state machine
  */
 
 /**
@@ -29,7 +29,7 @@ function Client(serviceUrl) {
  * @returns {Promise<CreateStateMachineResponse|VError>}
  */
 Client.prototype.createStateMachine = function createStateMachine(definition) {
-  const url = urlJoin(this.serviceUrl, 'machine');
+  const url = urlJoin(this.serviceUrl, 'v1', 'machine');
 
   const options = DEFAULT_OPTIONS;
 
@@ -38,7 +38,7 @@ Client.prototype.createStateMachine = function createStateMachine(definition) {
       switch (resp.status) {
         case 200: {
           const parsedBody = resp.data;
-          return { status: 'created', uuid: parsedBody.uuid };
+          return { status: 'created', orid: parsedBody.orid };
         }
         default:
           throw new VError({
@@ -54,7 +54,7 @@ Client.prototype.createStateMachine = function createStateMachine(definition) {
 
 /**
  * @typedef {Object} OperationDetail
- * @property {String} id The unique identifier of the operation
+ * @property {String} orid The unique identifier of the operation
  * @property {String} created The ISO timestamp when the operation was created
  * @property {String} status The status of this operation
  * @property {String} stateKey The user defined key for this operation
@@ -64,18 +64,18 @@ Client.prototype.createStateMachine = function createStateMachine(definition) {
 
 /**
  * @typedef {Object} ExecutionDetailsResponse
- * @property {String} id The id of the state machine execution
+ * @property {String} orid The ORID of the state machine execution
  * @property {String} status The status of the execution at the time of the request
  * @property {Array.<OperationDetail>} operations Operations that are associated with this execution
  */
 
 /**
  * Get the details of an execution
- * @param {String} id The id of the state machine execution
+ * @param {String} orid The ORID of the state machine execution
  * @returns {Promise<ExecutionDetailsResponse|null|VError>}
  */
-Client.prototype.getDetailsForExecution = function getDetailsForExecution(id) {
-  const url = urlJoin(this.serviceUrl, 'execution', id);
+Client.prototype.getDetailsForExecution = function getDetailsForExecution(orid) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'execution', orid);
 
   const options = DEFAULT_OPTIONS;
 
@@ -100,18 +100,18 @@ Client.prototype.getDetailsForExecution = function getDetailsForExecution(id) {
 
 /**
  * @typedef {Object} StateMachineDetails
- * @property {String} id The id of the state machine execution
+ * @property {String} orid The ORID of the state machine execution
  * @property {String} name The friendly name for this state machine
  * @property {Object} definition The definition for this state machine
  */
 
 /**
  * Get the details of a state machine
- * @param {String} id The id of the state machine
+ * @param {String} orid The ORID of the state machine
  * @returns {Promise<StateMachineDetails|null|VError>}
  */
-Client.prototype.getStateMachine = function getStateMachine(id) {
-  const url = urlJoin(this.serviceUrl, 'machine', id);
+Client.prototype.getStateMachine = function getStateMachine(orid) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
 
   const options = DEFAULT_OPTIONS;
 
@@ -136,17 +136,17 @@ Client.prototype.getStateMachine = function getStateMachine(id) {
 
 /**
  * @typedef {Object} ExecutionDetails
- * @property {String} id The id of the state machine execution
+ * @property {String} orid The ORID of the state machine execution
  */
 
 /**
  * Invoke a new execution of the state machine
- * @param {String} id The id of the state machine
+ * @param {String} orid The ORID of the state machine
  * @param {Object} data The input data for the state machine
  * @returns {Promise<ExecutionDetails|null|VError>}
  */
-Client.prototype.invokeStateMachine = function invokeStateMachine(id, data) {
-  const url = urlJoin(this.serviceUrl, 'machine', id, 'invoke');
+Client.prototype.invokeStateMachine = function invokeStateMachine(orid, data) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid, 'invoke');
 
   const options = DEFAULT_OPTIONS;
 
@@ -155,7 +155,7 @@ Client.prototype.invokeStateMachine = function invokeStateMachine(id, data) {
       switch (resp.status) {
         case 200: {
           const parsedBody = resp.data;
-          return { status: 'invoked', id: parsedBody.id };
+          return { status: 'invoked', orid: parsedBody.orid };
         }
         default:
           throw new VError({
@@ -171,7 +171,7 @@ Client.prototype.invokeStateMachine = function invokeStateMachine(id, data) {
 
 /**
  * @typedef {Object} StateMachineListItem
- * @property {String} id The id of the state machine
+ * @property {String} orid The ORID of the state machine
  * @property {String} name The friendly name of the state machine
  * @property {String} activeVersion The currently active definition for this state machine
  */
@@ -181,7 +181,7 @@ Client.prototype.invokeStateMachine = function invokeStateMachine(id, data) {
  * @returns {Promise<Array.<StateMachineListItem>|null|VError>}
  */
 Client.prototype.listStateMachines = function listStateMachines() {
-  const url = urlJoin(this.serviceUrl, 'machines');
+  const url = urlJoin(this.serviceUrl, 'v1', 'machines');
 
   const options = DEFAULT_OPTIONS;
 
@@ -204,17 +204,17 @@ Client.prototype.listStateMachines = function listStateMachines() {
 
 /**
  * @typedef {Object} UpdateStateMachineResponse
- * @property {String} uuid The unique identifier of the newly created state machine
+ * @property {String} orid The unique identifier of the newly updated state machine
  */
 
 /**
  * Create a new state machine
- * @param {String} id The id of the state machine
+ * @param {String} orid The ORID of the state machine
  * @param {String} definition The state machine definition
  * @returns {Promise<UpdateStateMachineResponse|VError>}
  */
-Client.prototype.updateStateMachine = function updateStateMachine(id, definition) {
-  const url = urlJoin(this.serviceUrl, 'machine', id);
+Client.prototype.updateStateMachine = function updateStateMachine(orid, definition) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
 
   const options = DEFAULT_OPTIONS;
 
@@ -223,7 +223,7 @@ Client.prototype.updateStateMachine = function updateStateMachine(id, definition
       switch (resp.status) {
         case 200: {
           const parsedBody = resp.data;
-          return { status: 'updated', uuid: parsedBody.uuid };
+          return { status: 'updated', orid: parsedBody.orid };
         }
         default:
           throw new VError({

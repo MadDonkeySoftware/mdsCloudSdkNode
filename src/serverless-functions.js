@@ -28,7 +28,7 @@ function Client(serviceUrl, defaultAccount) {
  * @returns {Promise<CreateFunctionResponse|VError>}
  */
 Client.prototype.createFunction = function createStateMachine(name) {
-  const url = urlJoin(this.serviceUrl, 'v1/create');
+  const url = urlJoin(this.serviceUrl, 'v1', 'create');
 
   const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
 
@@ -62,7 +62,7 @@ Client.prototype.createFunction = function createStateMachine(name) {
  * @returns {Promise<Array.<FunctionListItem>|null|VError>}
  */
 Client.prototype.listFunctions = function createStateMachine() {
-  const url = urlJoin(this.serviceUrl, 'v1/list');
+  const url = urlJoin(this.serviceUrl, 'v1', 'list');
 
   const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
 
@@ -130,7 +130,7 @@ Client.prototype.deleteFunction = function deleteFunction(id) {
  * @returns {Promise<InvokeFunctionResponse|VError>}
  */
 Client.prototype.invokeFunction = function invokeFunction(id, payload, isAsync) {
-  const url = `${urlJoin(this.serviceUrl, 'v1/invoke', id)}${isAsync ? '?async=true' : ''}`;
+  const url = `${urlJoin(this.serviceUrl, 'v1', 'invoke', id)}${isAsync ? '?async=true' : ''}`;
 
   const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
 
@@ -173,7 +173,7 @@ Client.prototype.invokeFunction = function invokeFunction(id, payload, isAsync) 
  * @returns {Promise<FunctionDetails|VError>}
  */
 Client.prototype.getFunctionDetails = function getFunctionDetails(id) {
-  const url = urlJoin(this.serviceUrl, 'v1/inspect', id);
+  const url = urlJoin(this.serviceUrl, 'v1', 'inspect', id);
 
   const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
 
@@ -229,7 +229,7 @@ Client.prototype.updateFunctionCode = function updateFunctionCode(
       form.append('entryPoint', entryPoint);
       return [pathMeta, form];
     }).then(([pathMeta, form]) => {
-      const url = urlJoin(this.serviceUrl, 'v1/uploadCode', id);
+      const url = urlJoin(this.serviceUrl, 'v1', 'uploadCode', id);
       const options = utils.getRequestOptions(
         undefined,
         {

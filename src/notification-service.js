@@ -22,12 +22,12 @@ function Client(serviceUrl) {
 
 /**
  * Emits a new message on the provided topic
- * @param {String} topic The name of the topic to emit the message to
+ * @param {String} topicOrid The ORID of the topic to emit the message to
  * @param {Any} message The message to emit
  * @returns {Promise<void|VError>}
  */
-Client.prototype.emit = function emit(topic, message) {
-  const url = urlJoin(this.serviceUrl, 'emit', topic);
+Client.prototype.emit = function emit(topicOrid, message) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'emit', topicOrid);
   const isObject = typeof message === 'object';
   const options = _.merge({}, DEFAULT_OPTIONS, {
     headers: {

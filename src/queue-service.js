@@ -36,7 +36,7 @@ function Client(serviceUrl) {
  * @returns {Promise<CreateResult|VError>}
  */
 Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
-  const url = urlJoin(this.serviceUrl, 'queue');
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue');
   const body = {
     name,
   };
@@ -51,9 +51,9 @@ Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
     .then((resp) => {
       switch (resp.status) {
         case 201:
-          return { status: 'created' };
-        case 204:
-          return { status: 'exists' };
+          return { status: 'created', ...resp.data };
+        case 200:
+          return { status: 'exists', ...resp.data };
         default:
           throw new VError({
             info: {
@@ -73,7 +73,7 @@ Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
  * @returns {Promise<void|VError>}
  */
 Client.prototype.deleteMessage = function deleteMessage(name, id) {
-  const url = urlJoin(this.serviceUrl, 'queue', name, 'message', id);
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'message', id);
   const options = DEFAULT_OPTIONS;
 
   return axios.delete(url, options)
@@ -99,7 +99,7 @@ Client.prototype.deleteMessage = function deleteMessage(name, id) {
  * @returns {Promise<void|VError>}
  */
 Client.prototype.deleteQueue = function deleteQueue(name) {
-  const url = urlJoin(this.serviceUrl, 'queue', name);
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name);
   const options = DEFAULT_OPTIONS;
 
   return axios.delete(url, options)
@@ -126,7 +126,7 @@ Client.prototype.deleteQueue = function deleteQueue(name) {
  * @returns {Promise<void|VError>}
  */
 Client.prototype.enqueueMessage = function enqueueMessage(name, message) {
-  const url = urlJoin(this.serviceUrl, 'queue', name, 'message');
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'message');
 
   const options = DEFAULT_OPTIONS;
   return axios.post(url, message, options)
@@ -161,7 +161,7 @@ Client.prototype.enqueueMessage = function enqueueMessage(name, message) {
  * @returns {Promise<void|MessageResponse|VError>}
  */
 Client.prototype.fetchMessage = function fetchMessage(name) {
-  const url = urlJoin(this.serviceUrl, 'queue', name, 'message');
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'message');
   const options = DEFAULT_OPTIONS;
 
   return axios.get(url, options)
@@ -194,7 +194,7 @@ Client.prototype.fetchMessage = function fetchMessage(name) {
  * @returns {Promise<QueueDetails|VError>}
  */
 Client.prototype.getQueueDetails = function getQueueDetails(name) {
-  const url = urlJoin(this.serviceUrl, 'queue', name, 'details');
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'details');
   const options = DEFAULT_OPTIONS;
 
   return axios.get(url, options)
@@ -227,7 +227,7 @@ Client.prototype.getQueueDetails = function getQueueDetails(name) {
  * @returns {Promise<QueueLength|VError>}
  */
 Client.prototype.getQueueLength = function getQueueLength(name) {
-  const url = urlJoin(this.serviceUrl, 'queue', name, 'length');
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'length');
   const options = DEFAULT_OPTIONS;
 
   return axios.get(url, options)
@@ -252,7 +252,7 @@ Client.prototype.getQueueLength = function getQueueLength(name) {
  * @returns {Promise<String[]|VError>}
  */
 Client.prototype.listQueues = function listQueues() {
-  const url = urlJoin(this.serviceUrl, 'queues');
+  const url = urlJoin(this.serviceUrl, 'v1', 'queues');
   const options = DEFAULT_OPTIONS;
 
   return axios.get(url, options)
@@ -284,7 +284,7 @@ Client.prototype.listQueues = function listQueues() {
  * @returns {Promise<void|VError>}
  */
 Client.prototype.updateQueue = function updateQueue(name, { resource } = {}) {
-  const url = urlJoin(this.serviceUrl, 'queue', name);
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name);
   const body = {};
   let skipPost = true;
 
