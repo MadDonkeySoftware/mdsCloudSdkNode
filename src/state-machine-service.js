@@ -2,20 +2,16 @@ const urlJoin = require('url-join');
 const { VError } = require('verror');
 const axios = require('axios');
 
-const DEFAULT_OPTIONS = {
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  validateStatus: () => true, // Don't reject on any request
-};
+const utils = require('./lib/utils');
 
 /**
  * Initializes a new instance of the Queue Service client
  *
  * @param {String} serviceUrl The url base that this client should use for service communication
  */
-function Client(serviceUrl) {
+function Client(serviceUrl, authManager) {
   this.serviceUrl = serviceUrl;
+  this.authManager = authManager;
 }
 
 /**
@@ -28,10 +24,10 @@ function Client(serviceUrl) {
  * @param {String} definition The state machine definition
  * @returns {Promise<CreateStateMachineResponse|VError>}
  */
-Client.prototype.createStateMachine = function createStateMachine(definition) {
+Client.prototype.createStateMachine = async function createStateMachine(definition) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine');
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.post(url, definition, options)
     .then((resp) => {
@@ -74,10 +70,10 @@ Client.prototype.createStateMachine = function createStateMachine(definition) {
  * @param {String} orid The ORID of the state machine execution
  * @returns {Promise<ExecutionDetailsResponse|null|VError>}
  */
-Client.prototype.getDetailsForExecution = function getDetailsForExecution(orid) {
+Client.prototype.getDetailsForExecution = async function getDetailsForExecution(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'execution', orid);
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -110,10 +106,10 @@ Client.prototype.getDetailsForExecution = function getDetailsForExecution(orid) 
  * @param {String} orid The ORID of the state machine
  * @returns {Promise<StateMachineDetails|null|VError>}
  */
-Client.prototype.getStateMachine = function getStateMachine(orid) {
+Client.prototype.getStateMachine = async function getStateMachine(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -145,10 +141,10 @@ Client.prototype.getStateMachine = function getStateMachine(orid) {
  * @param {Object} data The input data for the state machine
  * @returns {Promise<ExecutionDetails|null|VError>}
  */
-Client.prototype.invokeStateMachine = function invokeStateMachine(orid, data) {
+Client.prototype.invokeStateMachine = async function invokeStateMachine(orid, data) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid, 'invoke');
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.post(url, data, options)
     .then((resp) => {
@@ -180,10 +176,10 @@ Client.prototype.invokeStateMachine = function invokeStateMachine(orid, data) {
  * Invoke a new execution of the state machine.
  * @returns {Promise<Array.<StateMachineListItem>|null|VError>}
  */
-Client.prototype.listStateMachines = function listStateMachines() {
+Client.prototype.listStateMachines = async function listStateMachines() {
   const url = urlJoin(this.serviceUrl, 'v1', 'machines');
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -213,10 +209,10 @@ Client.prototype.listStateMachines = function listStateMachines() {
  * @param {String} definition The state machine definition
  * @returns {Promise<UpdateStateMachineResponse|VError>}
  */
-Client.prototype.updateStateMachine = function updateStateMachine(orid, definition) {
+Client.prototype.updateStateMachine = async function updateStateMachine(orid, definition) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.post(url, definition, options)
     .then((resp) => {

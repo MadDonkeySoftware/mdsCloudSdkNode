@@ -61,34 +61,52 @@ const getDefaultEnv = () => {
 
 /**
  *
- * @param {String} [envName] Environment to act against
  * @param {Object} obj Object to capture overridable portions of the request options
- * @param {Object} obj.headers Object to capture various request headers and value
+ * @param {String} [obj.envName] Environment to act against
+ * @param {Object} [obj.headers] Object to capture various request headers and value
+ * @param {Object} [obj.authManager] TODO
  */
-const getRequestOptions = (envName, { headers } = {}) => {
-  const env = envName || module.exports.getDefaultEnv();
-  const conf = module.exports.getEnvConfig(env);
+const getRequestOptions = async ({ envName, headers, authManager } = {}) => {
+  const preBaked = { headers: {} };
+  if (authManager) {
+    let token;
+    if (envName) {
+      const conf = module.exports.getEnvConfig(envName);
+      token = await authManager.getAuthenticationToken({
+        accountId: conf.account,
+        userId: conf.userId,
+        password: conf.password,
+      });
+    } else {
+      token = await authManager.getAuthenticationToken();
+    }
+    if (token) {
+      preBaked.headers.Token = token;
+    }
+  }
 
   return _.merge({},
     DEFAULT_OPTIONS,
-    { headers: { Account: conf.account } },
+    preBaked,
     { headers });
 };
 
-const download = (url, destination) => {
+const download = (url, destination, authManager) => {
   const parts = url.split('/');
   const fullDestination = path.join(destination, parts[parts.length - 1]);
   const writer = fs.createWriteStream(fullDestination);
 
-  return axios.get(url, { responseType: 'stream' })
-    .then((resp) => {
-      resp.data.pipe(writer);
-
-      return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
-    });
+  return module.exports.getRequestOptions({
+    authManager,
+  })
+    .then((options) => axios.get(url, { responseType: 'stream', ...options })
+      .then((resp) => {
+        resp.data.pipe(writer);
+        return new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', reject);
+        });
+      }));
 };
 
 const createArchiveFromDirectory = (folderPath) => new Promise((resolve, reject) => {

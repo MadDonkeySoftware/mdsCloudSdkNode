@@ -3,20 +3,16 @@ const urlJoin = require('url-join');
 const { VError } = require('verror');
 const axios = require('axios');
 
-const DEFAULT_OPTIONS = {
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  validateStatus: () => true, // Don't reject on any request
-};
+const utils = require('./lib/utils');
 
 /**
  * Initializes a new instance of the Queue Service client.
  *
  * @param {String} serviceUrl The url base that this client should use for service communication.
  */
-function Client(serviceUrl) {
+function Client(serviceUrl, authManager) {
   this.serviceUrl = serviceUrl;
+  this.authManager = authManager;
 }
 
 /**
@@ -35,7 +31,7 @@ function Client(serviceUrl) {
  * @param {CreateOptions} options the options with which to create the queue
  * @returns {Promise<CreateResult|VError>}
  */
-Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
+Client.prototype.createQueue = async function createQueue(name, { resource } = {}) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue');
   const body = {
     name,
@@ -45,7 +41,7 @@ Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
     body.resource = resource;
   }
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.post(url, body, options)
     .then((resp) => {
@@ -68,13 +64,13 @@ Client.prototype.createQueue = function createQueue(name, { resource } = {}) {
 
 /**
  * Removes a message from the queue service queue.
- * @param {String} name the name of the queue
+ * @param {String} orid the orid of the queue
  * @param {String} id the unique identifier of the message to remove.
  * @returns {Promise<void|VError>}
  */
-Client.prototype.deleteMessage = function deleteMessage(name, id) {
-  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'message', id);
-  const options = DEFAULT_OPTIONS;
+Client.prototype.deleteMessage = async function deleteMessage(orid, id) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'message', orid, id);
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.delete(url, options)
     .then((resp) => {
@@ -95,12 +91,12 @@ Client.prototype.deleteMessage = function deleteMessage(name, id) {
 
 /**
  * Removes the specified queue from the queue service.
- * @param {String} name the name of the queue
+ * @param {String} orid the orid of the queue
  * @returns {Promise<void|VError>}
  */
-Client.prototype.deleteQueue = function deleteQueue(name) {
-  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name);
-  const options = DEFAULT_OPTIONS;
+Client.prototype.deleteQueue = async function deleteQueue(orid) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid);
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.delete(url, options)
     .then((resp) => {
@@ -121,14 +117,14 @@ Client.prototype.deleteQueue = function deleteQueue(name) {
 
 /**
  * Removes a message from the queue service queue.
- * @param {String} name the name of the queue
+ * @param {String} orid the orid of the queue
  * @param {any} message the message body.
  * @returns {Promise<void|VError>}
  */
-Client.prototype.enqueueMessage = function enqueueMessage(name, message) {
-  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'message');
+Client.prototype.enqueueMessage = async function enqueueMessage(orid, message) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'message', orid);
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
   return axios.post(url, message, options)
     .then((resp) => {
       switch (resp.status) {
@@ -157,12 +153,12 @@ Client.prototype.enqueueMessage = function enqueueMessage(name, message) {
 
 /**
  * Fetches a message from the queue service if one is available
- * @param {String} name the name of the queue
+ * @param {String} orid the orid of the queue
  * @returns {Promise<void|MessageResponse|VError>}
  */
-Client.prototype.fetchMessage = function fetchMessage(name) {
-  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'message');
-  const options = DEFAULT_OPTIONS;
+Client.prototype.fetchMessage = async function fetchMessage(orid) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'message', orid);
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -190,12 +186,12 @@ Client.prototype.fetchMessage = function fetchMessage(name) {
 
 /**
  * Get details about a specific queue
- * @param {String} name the name of the queue
+ * @param {String} orid the orid of the queue
  * @returns {Promise<QueueDetails|VError>}
  */
-Client.prototype.getQueueDetails = function getQueueDetails(name) {
-  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'details');
-  const options = DEFAULT_OPTIONS;
+Client.prototype.getQueueDetails = async function getQueueDetails(orid) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid, 'details');
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -223,12 +219,12 @@ Client.prototype.getQueueDetails = function getQueueDetails(name) {
 
 /**
  * Get the number of messages in the queue
- * @param {String} name the name of the queue
+ * @param {String} orid the orid of the queue
  * @returns {Promise<QueueLength|VError>}
  */
-Client.prototype.getQueueLength = function getQueueLength(name) {
-  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name, 'length');
-  const options = DEFAULT_OPTIONS;
+Client.prototype.getQueueLength = async function getQueueLength(orid) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid, 'length');
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -251,9 +247,9 @@ Client.prototype.getQueueLength = function getQueueLength(name) {
  * Get a list of queue names available on the queue service
  * @returns {Promise<String[]|VError>}
  */
-Client.prototype.listQueues = function listQueues() {
+Client.prototype.listQueues = async function listQueues() {
   const url = urlJoin(this.serviceUrl, 'v1', 'queues');
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -279,12 +275,12 @@ Client.prototype.listQueues = function listQueues() {
 
 /**
  * Updates the specified queue with the provided options
- * @param {String} name the name of the queue
+ * @param {String} orid the orid of the queue
  * @param {UpdateOptions} options
  * @returns {Promise<void|VError>}
  */
-Client.prototype.updateQueue = function updateQueue(name, { resource } = {}) {
-  const url = urlJoin(this.serviceUrl, 'v1', 'queue', name);
+Client.prototype.updateQueue = async function updateQueue(orid, { resource } = {}) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid);
   const body = {};
   let skipPost = true;
 
@@ -302,7 +298,7 @@ Client.prototype.updateQueue = function updateQueue(name, { resource } = {}) {
     );
   }
 
-  const options = DEFAULT_OPTIONS;
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.post(url, body, options)
     .then((resp) => {

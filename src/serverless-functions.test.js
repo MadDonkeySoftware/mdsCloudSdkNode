@@ -10,7 +10,7 @@ const utils = require('./lib/utils');
 describe('serverless-functions', () => {
   beforeEach(() => {
     this.sandbox = sinon.createSandbox();
-    this.sandbox.stub(utils, 'getRequestOptions').returns({});
+    this.sandbox.stub(utils, 'getRequestOptions').resolves({});
   });
 
   afterEach(() => {
@@ -304,7 +304,7 @@ describe('serverless-functions', () => {
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
           chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/uploadCode/test');
-          chai.expect(err.message).to.be.equal('An error occurred while invoking the function.');
+          chai.expect(err.message).to.be.equal('An error occurred while updating the function.');
         });
     });
   });
