@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const FormData = require('form-data');
 const fs = require('fs');
 const urlJoin = require('url-join');
@@ -109,7 +108,7 @@ Client.prototype.createContainerPath = async function createContainerPath(orid, 
               body: resp.data,
             },
           },
-          'An error occurred while creating the container.');
+          'An error occurred while creating the path in the container.');
       }
     });
 };

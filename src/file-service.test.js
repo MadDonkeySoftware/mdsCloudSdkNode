@@ -2,7 +2,6 @@ const chai = require('chai');
 const sinon = require('sinon');
 const axios = require('axios');
 
-
 const FileService = require('./file-service');
 const utils = require('./lib/utils');
 
@@ -112,6 +111,73 @@ describe('file-service', () => {
           chai.expect(getCalls.length).to.be.equal(1);
           chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/createContainer/test');
           chai.expect(err.message).to.be.equal('An error occurred while creating the container.');
+        });
+    });
+  });
+
+  describe('createContainerPath', () => {
+    it('returns a resolved promise when successful', () => {
+      // Arrange
+      const orid = 'orid:1:mdsCloud:::1:fs:test';
+      const path = 'foo/bar';
+      const postStub = this.sandbox.stub(axios, 'post');
+      postStub.returns(Promise.resolve({
+        status: 201,
+      }));
+      const client = new FileService('http://127.0.0.1:8080');
+
+      // Act
+      return client.createContainerPath(orid, path)
+        .then((data) => {
+          // Assert
+          const getCalls = postStub.getCalls();
+          chai.expect(getCalls.length).to.be.equal(1);
+          chai.expect(getCalls[0].args[0]).to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
+          chai.expect(data).to.be.equal(undefined);
+        });
+    });
+
+    it('returns a rejected promise when container already exists', () => {
+      // Arrange
+      const orid = 'orid:1:mdsCloud:::1:fs:test';
+      const path = 'foo/bar';
+      const postStub = this.sandbox.stub(axios, 'post');
+      postStub.returns(Promise.resolve({
+        status: 409,
+      }));
+      const client = new FileService('http://127.0.0.1:8080');
+
+      // Act
+      return client.createContainerPath(orid, path)
+        .then(() => new Error('Test hit then when should hit catch.'))
+        .catch((err) => {
+          // Assert
+          const getCalls = postStub.getCalls();
+          chai.expect(getCalls.length).to.be.equal(1);
+          chai.expect(getCalls[0].args[0]).to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
+          chai.expect(err.message).to.be.equal(`Container path "${path}" already exists in container "${orid}".`);
+        });
+    });
+
+    it('returns a rejected promise when an unknown error occurs', () => {
+      // Arrange
+      const orid = 'orid:1:mdsCloud:::1:fs:test';
+      const path = 'foo/bar';
+      const postStub = this.sandbox.stub(axios, 'post');
+      postStub.returns(Promise.resolve({
+        status: 500,
+      }));
+      const client = new FileService('http://127.0.0.1:8080');
+
+      // Act
+      return client.createContainerPath(orid, path)
+        .then(() => new Error('Test hit then when should hit catch.'))
+        .catch((err) => {
+          // Assert
+          const getCalls = postStub.getCalls();
+          chai.expect(getCalls.length).to.be.equal(1);
+          chai.expect(getCalls[0].args[0]).to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
+          chai.expect(err.message).to.be.equal('An error occurred while creating the path in the container.');
         });
     });
   });

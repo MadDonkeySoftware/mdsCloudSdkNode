@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 const fs = require('fs');
 const chai = require('chai');
 const sinon = require('sinon');
@@ -63,7 +64,136 @@ describe('utils', () => {
   });
 
   describe('getRequestOptions', () => {
-    // TODO: test this
+    it('Resolves default options when no options are provided', () => utils.getRequestOptions().then((options) => {
+      // Assert
+      const validationStatusFunc = options.validateStatus;
+      // eslint-disable-next-line no-param-reassign
+      delete options.validateStatus;
+
+      chai.expect(validationStatusFunc()).to.equal(true);
+      chai.expect(options).to.deep.equal({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }));
+
+    it('Resolves proper options when headers are provided', () => {
+      // Arrange
+      const args = {
+        headers: { foo: 'bar' },
+      };
+
+      // Act
+      return utils.getRequestOptions(args).then((options) => {
+        // Assert
+        const validationStatusFunc = options.validateStatus;
+
+        // eslint-disable-next-line no-param-reassign
+        delete options.validateStatus;
+
+        chai.expect(validationStatusFunc()).to.equal(true);
+        chai.expect(options).to.deep.equal({
+          headers: {
+            'Content-Type': 'application/json',
+            foo: 'bar',
+          },
+        });
+      });
+    });
+
+    it('Resolves proper options when allowSelfSignCert is provided and true', () => {
+      // Arrange
+      const args = {
+        allowSelfSignCert: true,
+      };
+
+      // Act
+      return utils.getRequestOptions(args).then((options) => {
+        // Assert
+        const validationStatusFunc = options.validateStatus;
+        const httpsAgentAssignment = options.httpsAgent;
+
+        // eslint-disable-next-line no-param-reassign
+        delete options.validateStatus;
+        // eslint-disable-next-line no-param-reassign
+        delete options.httpsAgent;
+
+        chai.expect(validationStatusFunc()).to.equal(true);
+        chai.expect(httpsAgentAssignment).is.not.null;
+        chai.expect(options).to.deep.equal({
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      });
+    });
+
+    it('Resolves proper options when authManager is provided and token is resolved', () => {
+      // Arrange
+      const authManager = {
+        getAuthenticationToken: sinon.stub().resolves('testAuthToken'),
+      };
+      const args = {
+        authManager,
+      };
+
+      // Act
+      return utils.getRequestOptions(args).then((options) => {
+        // Assert
+        const validationStatusFunc = options.validateStatus;
+
+        // eslint-disable-next-line no-param-reassign
+        delete options.validateStatus;
+
+        chai.expect(validationStatusFunc()).to.equal(true);
+        chai.expect(options).to.deep.equal({
+          headers: {
+            'Content-Type': 'application/json',
+            Token: 'testAuthToken',
+          },
+        });
+      });
+    });
+
+    it('Resolves proper options when authManager and environment is provided and token is resolved', () => {
+      // Arrange
+      const authManager = {
+        getAuthenticationToken: sinon.stub().resolves('testAuthToken'),
+      };
+      const args = {
+        authManager,
+        envName: 'test',
+      };
+
+      sinon.stub(utils, 'getEnvConfig').returns({
+        account: 'testAccount',
+        userId: 'testUserId',
+        password: 'testPassword',
+      });
+
+      // Act
+      return utils.getRequestOptions(args).then((options) => {
+        // Assert
+        const validationStatusFunc = options.validateStatus;
+
+        // eslint-disable-next-line no-param-reassign
+        delete options.validateStatus;
+
+        chai.expect(validationStatusFunc()).to.equal(true);
+        chai.expect(options).to.deep.equal({
+          headers: {
+            'Content-Type': 'application/json',
+            Token: 'testAuthToken',
+          },
+        });
+        chai.expect(authManager.getAuthenticationToken.getCall(0).args[0]).to.deep.equal({
+          accountId: 'testAccount',
+          userId: 'testUserId',
+          password: 'testPassword',
+        });
+      });
+    });
   });
 
   describe('createArchiveFromDirectory', () => {

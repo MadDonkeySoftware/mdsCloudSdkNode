@@ -365,4 +365,48 @@ describe('state-machine-service', () => {
         });
     });
   });
+
+  describe('deleteFunction', () => {
+    it('returns a resolved promise when successful', () => {
+      // Arrange
+      const deleteStub = this.sandbox.stub(axios, 'delete');
+      deleteStub.returns(Promise.resolve({
+        status: 200,
+        data: {
+          orid: 'test',
+        },
+      }));
+      const client = new StateMachineService('http://127.0.0.1:8080');
+
+      // Act
+      return client.deleteStateMachine('test')
+        .then((data) => {
+          // Assert
+          const getCalls = deleteStub.getCalls();
+          chai.expect(getCalls.length).to.be.equal(1);
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/test');
+          chai.expect(data).to.deep.equal({ orid: 'test' });
+        });
+    });
+
+    it('returns a rejected promise when an unknown error occurs', () => {
+      // Arrange
+      const deleteStub = this.sandbox.stub(axios, 'delete');
+      deleteStub.returns(Promise.resolve({
+        status: 500,
+      }));
+      const client = new StateMachineService('http://127.0.0.1:8080');
+
+      // Act
+      return client.deleteStateMachine('test')
+        .then(() => new Error('Test hit then when should hit catch.'))
+        .catch((err) => {
+          // Assert
+          const getCalls = deleteStub.getCalls();
+          chai.expect(getCalls.length).to.be.equal(1);
+          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/test');
+          chai.expect(err.message).to.be.equal('An error occurred while deleting the state machine.');
+        });
+    });
+  });
 });

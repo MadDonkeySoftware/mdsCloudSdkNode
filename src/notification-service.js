@@ -1,5 +1,4 @@
 
-const _ = require('lodash');
 const urlJoin = require('url-join');
 const { VError } = require('verror');
 const axios = require('axios');

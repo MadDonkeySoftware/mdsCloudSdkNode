@@ -1,5 +1,8 @@
 const chai = require('chai');
+const sinon = require('sinon');
 const proxyquire = require('proxyquire');
+
+const utils = require('./lib/utils');
 
 const index = proxyquire('./index', {
   './notification-service': proxyquire('./notification-service', {
@@ -8,114 +11,145 @@ const index = proxyquire('./index', {
 });
 
 describe('index', () => {
-  it('initialize provides clients configured urls', () => {
-    // Arrange
-    const qsUrl = 'http://127.0.0.1:80';
-    const smUrl = 'http://127.0.0.1:81';
-    const fsUrl = 'http://127.0.0.1:82';
-    const nsUrl = 'http://127.0.0.1:83';
-    const sfUrl = 'http://127.0.0.1:84';
-
-    // Act
-    index.initialize({
-      qsUrl,
-      smUrl,
-      fsUrl,
-      nsUrl,
-      sfUrl,
-    });
-
-    // Assert
-    const qsClient = index.getQueueServiceClient();
-    const smClient = index.getStateMachineServiceClient();
-    const fsClient = index.getFileServiceClient();
-    const nsClient = index.getNotificationServiceClient();
-    const sfClient = index.getServerlessFunctionsClient();
-
-    chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
-    chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
-    chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
-    chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
-    chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
+  afterEach(() => {
+    sinon.restore();
   });
 
-  // it('get client methods use parameter when global not initialize not invoked', () => {
-  //   // Arrange
-  //   const qsUrl = 'http://127.0.0.1:8080';
-  //   const smUrl = 'http://127.0.0.1:8081';
-  //   const fsUrl = 'http://127.0.0.1:8082';
-  //   const nsUrl = 'http://127.0.0.1:8083';
-  //   const sfUrl = 'http://127.0.0.1:8084';
+  describe('initialize', () => {
+    it('with object provides clients configured urls', () => {
+      // Arrange
+      const qsUrl = 'http://127.0.0.1:80';
+      const smUrl = 'http://127.0.0.1:81';
+      const fsUrl = 'http://127.0.0.1:82';
+      const nsUrl = 'http://127.0.0.1:83';
+      const sfUrl = 'http://127.0.0.1:84';
+      const identityUrl = 'http://127.0.0.1:85';
+      const account = 'testAccount';
+      const userId = 'testUser';
+      const password = 'testPassword';
+      const allowSelfSignCert = true;
 
-  //   // Act
-  //   const qsClient = index.getQueueServiceClient(qsUrl);
-  //   const smClient = index.getStateMachineServiceClient(smUrl);
-  //   const fsClient = index.getFileServiceClient(fsUrl);
-  //   const nsClient = index.getNotificationServiceClient(nsUrl);
-  //   const sfClient = index.getServerlessFunctionsClient(sfUrl);
+      // Act
+      index.initialize({
+        qsUrl,
+        smUrl,
+        fsUrl,
+        nsUrl,
+        sfUrl,
+        identityUrl,
+        account,
+        userId,
+        password,
+        allowSelfSignCert,
+      });
 
-  //   // Assert
-  //   chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
-  //   chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
-  //   chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
-  //   chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
-  //   chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
-  // });
+      // Assert
+      const qsClient = index.getQueueServiceClient();
+      const smClient = index.getStateMachineServiceClient();
+      const fsClient = index.getFileServiceClient();
+      const nsClient = index.getNotificationServiceClient();
+      const sfClient = index.getServerlessFunctionsClient();
+      const identityClient = index.getIdentityServiceClient();
 
-  // it('get client methods use parameter when default initialize invoked', () => {
-  //   // Arrange
-  //   const qsUrl = 'http://127.0.0.1:8080';
-  //   const smUrl = 'http://127.0.0.1:8081';
-  //   const fsUrl = 'http://127.0.0.1:8082';
-  //   const nsUrl = 'http://127.0.0.1:8083';
-  //   const sfUrl = 'http://127.0.0.1:8084';
-  //   index.initialize();
+      chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
+      chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
+      chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
+      chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
+      chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
+      chai.expect(identityClient.serviceUrl).to.be.equal(identityUrl, 'Identity service url incorrectly configured.');
+    });
 
-  //   // Act
-  //   const qsClient = index.getQueueServiceClient(qsUrl);
-  //   const smClient = index.getStateMachineServiceClient(smUrl);
-  //   const fsClient = index.getFileServiceClient(fsUrl);
-  //   const nsClient = index.getNotificationServiceClient(nsUrl);
-  //   const sfClient = index.getServerlessFunctionsClient(sfUrl);
+    it('with string provides clients configured urls', () => {
+      // Arrange
+      const qsUrl = 'http://127.0.0.1:80';
+      const smUrl = 'http://127.0.0.1:81';
+      const fsUrl = 'http://127.0.0.1:82';
+      const nsUrl = 'http://127.0.0.1:83';
+      const sfUrl = 'http://127.0.0.1:84';
+      const identityUrl = 'http://127.0.0.1:85';
+      const account = 'testAccount';
+      const userId = 'testUser';
+      const password = 'testPassword';
+      const allowSelfSignCert = true;
 
-  //   // Assert
-  //   chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
-  //   chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
-  //   chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
-  //   chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
-  //   chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
-  // });
+      sinon.stub(utils, 'getEnvConfig').withArgs('testEnv').returns({
+        qsUrl,
+        smUrl,
+        fsUrl,
+        nsUrl,
+        sfUrl,
+        identityUrl,
+        account,
+        userId,
+        password,
+        allowSelfSignCert,
+      });
 
-  // it('get client methods use parameter over global initialized values', () => {
-  //   // Arrange
-  //   const qsUrl = 'http://127.0.0.1:8080';
-  //   const smUrl = 'http://127.0.0.1:8081';
-  //   const fsUrl = 'http://127.0.0.1:8082';
-  //   const nsUrl = 'http://127.0.0.1:8082';
-  //   const sfUrl = 'http://127.0.0.1:8084';
+      // Act
+      index.initialize('testEnv');
 
-  //   // Act
-  //   index.initialize({
-  //     qsUrl: 'http://127.0.0.1:80',
-  //     smUrl: 'http://127.0.0.1:81',
-  //     fsUrl: 'http://127.0.0.1:82',
-  //     nsUrl: 'http://127.0.0.1:83',
-  //     sfUrl: 'http://127.0.0.1:84',
-  //   });
+      // Assert
+      const qsClient = index.getQueueServiceClient();
+      const smClient = index.getStateMachineServiceClient();
+      const fsClient = index.getFileServiceClient();
+      const nsClient = index.getNotificationServiceClient();
+      const sfClient = index.getServerlessFunctionsClient();
+      const identityClient = index.getIdentityServiceClient();
 
-  //   // Assert
-  //   const qsClient = index.getQueueServiceClient(qsUrl);
-  //   const smClient = index.getStateMachineServiceClient(smUrl);
-  //   const fsClient = index.getFileServiceClient(fsUrl);
-  //   const nsClient = index.getNotificationServiceClient(nsUrl);
-  //   const sfClient = index.getServerlessFunctionsClient(sfUrl);
+      chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
+      chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
+      chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
+      chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
+      chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
+      chai.expect(identityClient.serviceUrl).to.be.equal(identityUrl, 'Identity service url incorrectly configured.');
+    });
 
-  //   chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
-  //   chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
-  //   chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
-  //   chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
-  //   chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
-  // });
+    it('with undefined provides clients environment configured urls', () => {
+      // Arrange
+      const qsUrl = 'http://127.0.0.1:80';
+      const smUrl = 'http://127.0.0.1:81';
+      const fsUrl = 'http://127.0.0.1:82';
+      const nsUrl = 'http://127.0.0.1:83';
+      const sfUrl = 'http://127.0.0.1:84';
+      const identityUrl = 'http://127.0.0.1:85';
+      const account = 'testAccount';
+      const userId = 'testUser';
+      const password = 'testPassword';
+      const allowSelfSignCert = true;
+
+      sinon.stub(utils, 'getDefaultEnv').returns('defaultEnv');
+      sinon.stub(utils, 'getEnvConfig').withArgs('defaultEnv').returns({
+        qsUrl,
+        smUrl,
+        fsUrl,
+        nsUrl,
+        sfUrl,
+        identityUrl,
+        account,
+        userId,
+        password,
+        allowSelfSignCert,
+      });
+
+      // Act
+      index.initialize();
+
+      // Assert
+      const qsClient = index.getQueueServiceClient();
+      const smClient = index.getStateMachineServiceClient();
+      const fsClient = index.getFileServiceClient();
+      const nsClient = index.getNotificationServiceClient();
+      const sfClient = index.getServerlessFunctionsClient();
+      const identityClient = index.getIdentityServiceClient();
+
+      chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
+      chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
+      chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
+      chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
+      chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
+      chai.expect(identityClient.serviceUrl).to.be.equal(identityUrl, 'Identity service url incorrectly configured.');
+    });
+  });
 
   it('throws error when initialized with invalid parameter type', () => {
     try {

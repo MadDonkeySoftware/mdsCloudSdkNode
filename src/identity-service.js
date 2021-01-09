@@ -1,7 +1,6 @@
 const urlJoin = require('url-join');
 const { VError } = require('verror');
 const axios = require('axios');
-const https = require('https');
 
 const utils = require('./lib/utils');
 // eslint-disable-next-line no-unused-vars
@@ -45,13 +44,7 @@ Client.prototype.register = async function register(meta) {
     accountName: meta.accountName,
   };
 
-  const options = await utils.getRequestOptions();
-
-  if (this.allowSelfSignCert) {
-    options.httpsAgent = new https.Agent({
-      rejectUnauthorized: false,
-    });
-  }
+  const options = await utils.getRequestOptions({ allowSelfSignCert: this.allowSelfSignCert });
 
   return axios.post(url, body, options)
     .then((resp) => {
@@ -100,13 +93,10 @@ Client.prototype.updateUser = async function updateUser(meta) {
     friendlyName: meta.friendlyName,
   };
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
-
-  if (this.allowSelfSignCert) {
-    options.httpsAgent = new https.Agent({
-      rejectUnauthorized: false,
-    });
-  }
+  const options = await utils.getRequestOptions({
+    allowSelfSignCert: this.allowSelfSignCert,
+    authManager: this.authManager,
+  });
 
   return axios.post(url, body, options)
     .then((resp) => {
@@ -131,13 +121,7 @@ Client.prototype.updateUser = async function updateUser(meta) {
 Client.prototype.getPublicSignature = async function updateUser() {
   const url = urlJoin(this.serviceUrl, 'v1', 'publicSignature');
 
-  const options = await utils.getRequestOptions();
-
-  if (this.allowSelfSignCert) {
-    options.httpsAgent = new https.Agent({
-      rejectUnauthorized: false,
-    });
-  }
+  const options = await utils.getRequestOptions({ allowSelfSignCert: this.allowSelfSignCert });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -170,13 +154,10 @@ Client.prototype.impersonateUser = async function impersonateUser(meta) {
     userId: meta.userId,
   };
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
-
-  if (this.allowSelfSignCert) {
-    options.httpsAgent = new https.Agent({
-      rejectUnauthorized: false,
-    });
-  }
+  const options = await utils.getRequestOptions({
+    allowSelfSignCert: this.allowSelfSignCert,
+    authManager: this.authManager,
+  });
 
   return axios.post(url, body, options)
     .then((resp) => {

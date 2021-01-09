@@ -18,6 +18,7 @@ const getUrls = (environment) => {
 
 // TODO: Expand to take overridable values
 const getAuthManager = (environment) => {
+  /* istanbul ignore if */
   if (!AUTH_MANAGER) {
     const urls = getUrls(environment);
     AUTH_MANAGER = new AuthManager(new DiscCache(), urls.identityUrl);
@@ -42,7 +43,7 @@ const getAuthManager = (environment) => {
  */
 function Sdk({
   qsUrl, smUrl, fsUrl, nsUrl, sfUrl, identityUrl, account, userId, password, allowSelfSignCert,
-} = {}) {
+}) {
   this.qsUrl = qsUrl;
   this.smUrl = smUrl;
   this.fsUrl = fsUrl;
@@ -83,7 +84,7 @@ const initialize = (data) => {
       allowSelfSignCert: data.allowSelfSignCert,
     });
   } else if (typeof data === 'string' || data === undefined) {
-    const envData = getUrls(data) || {};
+    const envData = getUrls(data);
     SINGLETON = new Sdk(envData);
     AUTH_MANAGER = new AuthManager({
       cache: new DiscCache(),

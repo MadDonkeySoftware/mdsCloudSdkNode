@@ -233,4 +233,38 @@ Client.prototype.updateStateMachine = async function updateStateMachine(orid, de
     });
 };
 
+/**
+ * @typedef {Object} DeleteStateMachineResponse
+ * @property {String} orid The identifier of the deleted state machine
+ */
+
+/**
+ * Deletes a state machine
+ * @property {String} orid The orid of the state machine
+ * @returns {Promise<DeleteStateMachineResponse|VError>}
+ */
+Client.prototype.deleteStateMachine = async function deleteStateMachine(orid) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
+
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
+
+  return axios.delete(url, options)
+    .then((resp) => {
+      switch (resp.status) {
+        case 200: {
+          const parsedBody = resp.data;
+          return { orid: parsedBody.orid };
+        }
+        default:
+          throw new VError({
+            info: {
+              status: resp.status,
+              body: resp.data,
+            },
+          },
+          'An error occurred while deleting the state machine.');
+      }
+    });
+};
+
 module.exports = Client;
