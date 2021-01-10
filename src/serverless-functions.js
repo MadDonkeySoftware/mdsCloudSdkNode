@@ -11,9 +11,9 @@ const utils = require('./lib/utils');
  *
  * @param {String} serviceUrl The url base that this client should use for service communication
  */
-function Client(serviceUrl, defaultAccount) {
+function Client(serviceUrl, authManager) {
   this.serviceUrl = serviceUrl;
-  this.defaultAccount = defaultAccount;
+  this.authManager = authManager;
 }
 
 /**
@@ -27,10 +27,10 @@ function Client(serviceUrl, defaultAccount) {
  * @param {String} name The function name
  * @returns {Promise<CreateFunctionResponse|VError>}
  */
-Client.prototype.createFunction = function createStateMachine(name) {
-  const url = urlJoin(this.serviceUrl, 'v1/create');
+Client.prototype.createFunction = async function createStateMachine(name) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'create');
 
-  const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.post(url, { name }, options)
     .then((resp) => {
@@ -61,10 +61,10 @@ Client.prototype.createFunction = function createStateMachine(name) {
  * Lists all serverless functions
  * @returns {Promise<Array.<FunctionListItem>|null|VError>}
  */
-Client.prototype.listFunctions = function createStateMachine() {
-  const url = urlJoin(this.serviceUrl, 'v1/list');
+Client.prototype.listFunctions = async function createStateMachine() {
+  const url = urlJoin(this.serviceUrl, 'v1', 'list');
 
-  const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -95,10 +95,10 @@ Client.prototype.listFunctions = function createStateMachine() {
  * @property {String} id The id of the state machine
  * @returns {Promise<DeleteFunctionResponse|VError>}
  */
-Client.prototype.deleteFunction = function deleteFunction(id) {
+Client.prototype.deleteFunction = async function deleteFunction(id) {
   const url = urlJoin(this.serviceUrl, 'v1', id);
 
-  const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.delete(url, options)
     .then((resp) => {
@@ -129,10 +129,10 @@ Client.prototype.deleteFunction = function deleteFunction(id) {
  * @param {boolean} [isAsync] True to invoke the function and not wait for the result.
  * @returns {Promise<InvokeFunctionResponse|VError>}
  */
-Client.prototype.invokeFunction = function invokeFunction(id, payload, isAsync) {
-  const url = `${urlJoin(this.serviceUrl, 'v1/invoke', id)}${isAsync ? '?async=true' : ''}`;
+Client.prototype.invokeFunction = async function invokeFunction(id, payload, isAsync) {
+  const url = `${urlJoin(this.serviceUrl, 'v1', 'invoke', id)}${isAsync ? '?async=true' : ''}`;
 
-  const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.post(url, payload, options)
     .then((resp) => {
@@ -172,10 +172,10 @@ Client.prototype.invokeFunction = function invokeFunction(id, payload, isAsync) 
  * @param {String} id The identifier of the function to invoke
  * @returns {Promise<FunctionDetails|VError>}
  */
-Client.prototype.getFunctionDetails = function getFunctionDetails(id) {
-  const url = urlJoin(this.serviceUrl, 'v1/inspect', id);
+Client.prototype.getFunctionDetails = async function getFunctionDetails(id) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'inspect', id);
 
-  const options = utils.getRequestOptions(undefined, { headers: { Account: this.defaultAccount } });
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
 
   return axios.get(url, options)
     .then((resp) => {
@@ -229,18 +229,14 @@ Client.prototype.updateFunctionCode = function updateFunctionCode(
       form.append('entryPoint', entryPoint);
       return [pathMeta, form];
     }).then(([pathMeta, form]) => {
-      const url = urlJoin(this.serviceUrl, 'v1/uploadCode', id);
-      const options = utils.getRequestOptions(
-        undefined,
-        {
-          headers: {
-            Account: this.defaultAccount,
-            ...form.getHeaders(),
-          },
+      const url = urlJoin(this.serviceUrl, 'v1', 'uploadCode', id);
+      return utils.getRequestOptions({
+        authManager: this.authManager,
+        headers: {
+          ...form.getHeaders(),
         },
-      );
-
-      return axios.post(url, form, options)
+      })
+        .then((options) => axios.post(url, form, options))
         .then((resp) => {
           if (!pathMeta.userSupplied && fs.existsSync(pathMeta.filePath)) {
             fs.unlinkSync(pathMeta.filePath);
@@ -257,7 +253,7 @@ Client.prototype.updateFunctionCode = function updateFunctionCode(
                   body: resp.data,
                 },
               },
-              'An error occurred while invoking the function.');
+              'An error occurred while updating the function.');
           }
         });
     });

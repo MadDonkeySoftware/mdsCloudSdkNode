@@ -41,7 +41,7 @@ describe('notification-service', () => {
           // assert
           const axiosPostCalls = postStub.getCalls();
           chai.expect(axiosPostCalls.length).to.be.eql(1);
-          chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/emit/test-topic');
+          chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
           chai.expect(axiosPostCalls[0].args[1]).to.be.eql('some message');
         });
       });
@@ -60,7 +60,7 @@ describe('notification-service', () => {
           // assert
           const axiosPostCalls = postStub.getCalls();
           chai.expect(axiosPostCalls.length).to.be.eql(1);
-          chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/emit/test-topic');
+          chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
           chai.expect(axiosPostCalls[0].args[1]).to.be.eql(msg);
         });
       });
@@ -80,7 +80,7 @@ describe('notification-service', () => {
         // assert
         const axiosPostCalls = postStub.getCalls();
         chai.expect(axiosPostCalls.length).to.be.eql(1);
-        chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/emit/test-topic');
+        chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
         chai.expect(axiosPostCalls[0].args[1]).to.be.eql('some message');
         chai.expect(verror.info(err)).to.be.eql({
           status: 400,

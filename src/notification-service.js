@@ -1,35 +1,35 @@
 
-const _ = require('lodash');
 const urlJoin = require('url-join');
 const { VError } = require('verror');
 const axios = require('axios');
 const SocketClient = require('socket.io-client');
 
-/* istanbul ignore next: not concerned with test here */
-const DEFAULT_OPTIONS = {
-  validateStatus: () => true, // Don't reject on any request
-};
+const utils = require('./lib/utils');
 
 /**
  * Initializes a new instance of the File Service client.
  *
  * @param {String} serviceUrl The url base that this client should use for service communication.
  */
-function Client(serviceUrl) {
+function Client(serviceUrl, authManager) {
   this.serviceUrl = serviceUrl;
+  this.authManager = authManager;
+
   this._socket = SocketClient(serviceUrl);
 }
 
 /**
  * Emits a new message on the provided topic
- * @param {String} topic The name of the topic to emit the message to
+ * @param {String} topicOrid The ORID of the topic to emit the message to
  * @param {Any} message The message to emit
  * @returns {Promise<void|VError>}
  */
-Client.prototype.emit = function emit(topic, message) {
-  const url = urlJoin(this.serviceUrl, 'emit', topic);
+Client.prototype.emit = async function emit(topicOrid, message) {
+  const url = urlJoin(this.serviceUrl, 'v1', 'emit', topicOrid);
   const isObject = typeof message === 'object';
-  const options = _.merge({}, DEFAULT_OPTIONS, {
+
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
     headers: {
       'Content-Type': isObject ? 'application/json' : 'text/plain',
     },
@@ -47,7 +47,7 @@ Client.prototype.emit = function emit(topic, message) {
               body: resp.data,
             },
           },
-          'An error occurred while creating the container.');
+          'An error occurred while attempting to emit the message.');
       }
     });
 };
