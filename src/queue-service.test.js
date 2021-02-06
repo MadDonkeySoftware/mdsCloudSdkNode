@@ -2,7 +2,6 @@ const chai = require('chai');
 const axios = require('axios');
 const sinon = require('sinon');
 
-
 const QueueService = require('./queue-service');
 
 describe('queue-service', () => {

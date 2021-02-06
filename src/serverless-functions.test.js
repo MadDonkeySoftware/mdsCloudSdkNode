@@ -3,7 +3,6 @@ const sinon = require('sinon');
 const axios = require('axios');
 const fs = require('fs');
 
-
 const ServerlessFunctions = require('./serverless-functions');
 const utils = require('./lib/utils');
 

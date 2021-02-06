@@ -19,7 +19,9 @@ describe('disc-cache', () => {
 
   beforeEach(() => {
     existsSyncStub = sinon.stub(fs, 'existsSync');
+    // eslint-disable-next-line no-unused-vars
     mkdirSyncStub = sinon.stub(fs, 'mkdirSync');
+    // eslint-disable-next-line no-unused-vars
     writeFileSyncStub = sinon.stub(fs, 'writeFileSync');
     readFileSyncStub = sinon.stub(fs, 'readFileSync');
   });
