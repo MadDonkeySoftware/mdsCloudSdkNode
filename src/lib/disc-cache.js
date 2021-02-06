@@ -9,7 +9,6 @@ function DiscCache() {
   this.data = {};
 }
 
-
 const writeCache = (data) => {
   const cacheFile = path.join(settingDir, CACHE_FILE_NAME);
   if (!fs.existsSync(settingDir)) fs.mkdirSync(settingDir);

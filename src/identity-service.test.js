@@ -2,7 +2,6 @@ const chai = require('chai');
 const sinon = require('sinon');
 const axios = require('axios');
 
-
 const IdentityService = require('./identity-service');
 
 describe('identity-service', () => {

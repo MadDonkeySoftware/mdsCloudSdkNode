@@ -1,8 +1,9 @@
-
 const urlJoin = require('url-join');
 const { VError } = require('verror');
 const axios = require('axios');
 const SocketClient = require('socket.io-client');
+// eslint-disable-next-line no-unused-vars
+const AuthManager = require('./lib/auth-manager');
 
 const utils = require('./lib/utils');
 
@@ -10,12 +11,21 @@ const utils = require('./lib/utils');
  * Initializes a new instance of the File Service client.
  *
  * @param {String} serviceUrl The url base that this client should use for service communication.
+ * @param {AuthManager} authManager
  */
 function Client(serviceUrl, authManager) {
   this.serviceUrl = serviceUrl;
   this.authManager = authManager;
 
-  this._socket = SocketClient(serviceUrl);
+  this._socket = SocketClient(serviceUrl, {
+    auth: (cb) => {
+      authManager.getAuthenticationToken().then((token) => {
+        cb({
+          token,
+        });
+      });
+    },
+  });
 }
 
 /**

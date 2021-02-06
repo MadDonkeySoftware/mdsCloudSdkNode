@@ -14,7 +14,7 @@ describe('notification-service', () => {
     this.sandbox.restore();
   });
 
-  const getClient = (options) => {
+  const getClient = (options, authManager) => {
     const defaults = {
       socketClient: () => {},
     };
@@ -23,7 +23,7 @@ describe('notification-service', () => {
       'socket.io-client': opts.socketClient,
     });
 
-    return new NotificationService('http://127.0.0.1:8080');
+    return new NotificationService('http://127.0.0.1:8080', authManager);
   };
 
   describe('emit', () => {
@@ -147,6 +147,31 @@ describe('notification-service', () => {
       // Assert
       const onCalls = socketStub.close.getCalls();
       chai.expect(onCalls.length).to.be.eql(1);
+    });
+  });
+
+  describe('constructor options', () => {
+    it('appropriately sets token on auth callback', (testDone) => {
+      // Arrange
+      const authManager = {
+        getAuthenticationToken: () => Promise.resolve('test token'),
+      };
+
+      // Act / Assert
+      const testAuthCb = (result) => {
+        try {
+          chai.expect(result).to.deep.equal({ token: 'test token' });
+          testDone();
+        } catch (err) {
+          testDone(err);
+        }
+      };
+      getClient({
+        socketClient: (url, opts) => {
+          opts.auth(testAuthCb);
+          return {};
+        },
+      }, authManager);
     });
   });
 });
