@@ -4,7 +4,7 @@ const sinon = require('sinon');
 
 const QueueService = require('./queue-service');
 
-describe('queue-service', () => {
+describe(__filename, () => {
   beforeEach(() => {
     this.sandbox = sinon.createSandbox();
   });
@@ -351,6 +351,7 @@ describe('queue-service', () => {
       // Arrange
       const message = {
         resource: 'asdf',
+        dlq: 'asdf-dlq',
       };
       const getStub = this.sandbox.stub(axios, 'get');
       getStub.returns(Promise.resolve({
@@ -387,7 +388,7 @@ describe('queue-service', () => {
           const calls = getStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
           chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue/details');
-          chai.expect(data).to.be.eql({ resource: undefined });
+          chai.expect(data).to.be.eql({ resource: undefined, dlq: undefined });
         });
     });
 

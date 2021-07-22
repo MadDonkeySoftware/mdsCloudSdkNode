@@ -18,6 +18,7 @@ function Client(serviceUrl, authManager) {
 /**
  * @typedef {Object} CreateOptions
  * @property {String} resource the resource to invoke upon queueing a message to this queue.
+ * @property {String} dlq the dlq to place messages in when the resource fails to invoke properly.
  */
 
 /**
@@ -31,7 +32,7 @@ function Client(serviceUrl, authManager) {
  * @param {CreateOptions} options the options with which to create the queue
  * @returns {Promise<CreateResult|VError>}
  */
-Client.prototype.createQueue = async function createQueue(name, { resource } = {}) {
+Client.prototype.createQueue = async function createQueue(name, { resource, dlq } = {}) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue');
   const body = {
     name,
@@ -41,25 +42,29 @@ Client.prototype.createQueue = async function createQueue(name, { resource } = {
     body.resource = resource;
   }
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  if (dlq) {
+    body.dlq = dlq;
+  }
 
-  return axios.post(url, body, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 201:
-          return { status: 'created', ...resp.data };
-        case 200:
-          return { status: 'exists', ...resp.data };
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const resp = await axios.post(url, body, options);
+
+  switch (resp.status) {
+    case 201:
+      return { status: 'created', ...resp.data };
+    case 200:
+      return { status: 'exists', ...resp.data };
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while creating the queue.');
-      }
-    });
+        },
+        'An error occurred while creating the queue.',
+      );
+  }
 };
 
 /**
@@ -72,21 +77,21 @@ Client.prototype.deleteMessage = async function deleteMessage(orid, id) {
   const url = urlJoin(this.serviceUrl, 'v1', 'message', orid, id);
   const options = await utils.getRequestOptions({ authManager: this.authManager });
 
-  return axios.delete(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return Promise.resolve();
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.delete(url, options);
+  switch (resp.status) {
+    case 200:
+      return Promise.resolve();
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while deleting the message.');
-      }
-    });
+        },
+        'An error occurred while deleting the message.',
+      );
+  }
 };
 
 /**
@@ -98,21 +103,21 @@ Client.prototype.deleteQueue = async function deleteQueue(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid);
   const options = await utils.getRequestOptions({ authManager: this.authManager });
 
-  return axios.delete(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 204:
-          return Promise.resolve();
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.delete(url, options);
+  switch (resp.status) {
+    case 204:
+      return Promise.resolve();
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while deleting the queue.');
-      }
-    });
+        },
+        'An error occurred while deleting the queue.',
+      );
+  }
 };
 
 /**
@@ -125,21 +130,21 @@ Client.prototype.enqueueMessage = async function enqueueMessage(orid, message) {
   const url = urlJoin(this.serviceUrl, 'v1', 'message', orid);
 
   const options = await utils.getRequestOptions({ authManager: this.authManager });
-  return axios.post(url, message, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return Promise.resolve();
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.post(url, message, options);
+  switch (resp.status) {
+    case 200:
+      return Promise.resolve();
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while enqueueing the message.');
-      }
-    });
+        },
+        'An error occurred while enqueueing the message.',
+      );
+  }
 };
 
 /**
@@ -160,28 +165,29 @@ Client.prototype.fetchMessage = async function fetchMessage(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'message', orid);
   const options = await utils.getRequestOptions({ authManager: this.authManager });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          const parsedBody = resp.data;
-          return parsedBody.id ? parsedBody : Promise.resolve();
-        }
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.get(url, options);
+  switch (resp.status) {
+    case 200: {
+      const parsedBody = resp.data;
+      return parsedBody.id ? parsedBody : Promise.resolve();
+    }
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while fetching a message.');
-      }
-    });
+        },
+        'An error occurred while fetching a message.',
+      );
+  }
 };
 
 /**
  * @typedef {Object} QueueDetails
  * @property {String} resource the resource to invoke upon queueing a message to this queue.
+ * @property {String} dlq the dlq to place messages in when the resource fails to invoke properly.
  */
 
 /**
@@ -193,23 +199,24 @@ Client.prototype.getQueueDetails = async function getQueueDetails(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid, 'details');
   const options = await utils.getRequestOptions({ authManager: this.authManager });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return _.merge({
-            resource: undefined,
-          }, resp.data);
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.get(url, options);
+  switch (resp.status) {
+    case 200:
+      return _.merge({
+        resource: undefined,
+        dlq: undefined,
+      }, resp.data);
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while obtaining the details of the queue.');
-      }
-    });
+        },
+        'An error occurred while obtaining the details of the queue.',
+      );
+  }
 };
 
 /**
@@ -226,21 +233,21 @@ Client.prototype.getQueueLength = async function getQueueLength(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid, 'length');
   const options = await utils.getRequestOptions({ authManager: this.authManager });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return resp.data;
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.get(url, options);
+  switch (resp.status) {
+    case 200:
+      return resp.data;
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while obtaining the size of the queue.');
-      }
-    });
+        },
+        'An error occurred while obtaining the size of the queue.',
+      );
+  }
 };
 
 /**
@@ -251,26 +258,27 @@ Client.prototype.listQueues = async function listQueues() {
   const url = urlJoin(this.serviceUrl, 'v1', 'queues');
   const options = await utils.getRequestOptions({ authManager: this.authManager });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return resp.data;
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.get(url, options);
+  switch (resp.status) {
+    case 200:
+      return resp.data;
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while listing the available queues.');
-      }
-    });
+        },
+        'An error occurred while listing the available queues.',
+      );
+  }
 };
 
 /**
  * @typedef {Object} UpdateOptions
  * @property {String} resource the resource to invoke upon queueing a message to this queue.
+ * @property {String} dlq the dlq to place messages in when the resource fails to invoke properly.
  */
 
 /**
@@ -279,7 +287,7 @@ Client.prototype.listQueues = async function listQueues() {
  * @param {UpdateOptions} options
  * @returns {Promise<void|VError>}
  */
-Client.prototype.updateQueue = async function updateQueue(orid, { resource } = {}) {
+Client.prototype.updateQueue = async function updateQueue(orid, { resource, dlq } = {}) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid);
   const body = {};
   let skipPost = true;
@@ -289,32 +297,37 @@ Client.prototype.updateQueue = async function updateQueue(orid, { resource } = {
     skipPost = false;
   }
 
+  if (dlq) {
+    body.dlq = dlq.toUpperCase() === 'NULL' ? null : dlq;
+    skipPost = false;
+  }
+
   if (skipPost) {
     return Promise.reject(
-      new VError({
-        name: 'NoActionAvailable',
-      },
-      'No update actions specified. Please update at least one option.'),
+      new VError(
+        { name: 'NoActionAvailable' },
+        'No update actions specified. Please update at least one option.',
+      ),
     );
   }
 
   const options = await utils.getRequestOptions({ authManager: this.authManager });
 
-  return axios.post(url, body, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return Promise.resolve();
-        default:
-          throw new VError({
-            info: {
-              status: resp.status,
-              body: resp.data,
-            },
+  const resp = await axios.post(url, body, options);
+  switch (resp.status) {
+    case 200:
+      return undefined;
+    default:
+      throw new VError(
+        {
+          info: {
+            status: resp.status,
+            body: resp.data,
           },
-          'An error occurred while updating the queue.');
-      }
-    });
+        },
+        'An error occurred while updating the queue.',
+      );
+  }
 };
 
 module.exports = Client;
