@@ -19,43 +19,59 @@ describe('state-machine-service', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
         const definition = { a: 'a', b: 'b' };
-        postStub.returns(Promise.resolve({
-          status: 200,
-          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+            data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
+          }),
+        );
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.createStateMachine(definition)
-          .then((data) => {
-            // Assert
-            const calls = postStub.getCalls();
-            chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine');
-            chai.expect(calls[0].args[1]).to.be.eql(definition);
-            chai.expect(data).to.be.eql({ status: 'created', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
+        return client.createStateMachine(definition).then((data) => {
+          // Assert
+          const calls = postStub.getCalls();
+          chai.expect(calls.length).to.be.equal(1);
+          chai
+            .expect(calls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/machine');
+          chai.expect(calls[0].args[1]).to.be.eql(definition);
+          chai.expect(data).to.be.eql({
+            status: 'created',
+            orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
           });
+        });
       });
 
       it('definition is string', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
         const definition = { a: 'a', b: 'b' };
-        postStub.returns(Promise.resolve({
-          status: 200,
-          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+            data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
+          }),
+        );
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.createStateMachine(JSON.stringify(definition))
+        return client
+          .createStateMachine(JSON.stringify(definition))
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine');
-            chai.expect(calls[0].args[1]).to.be.equal(JSON.stringify(definition));
-            chai.expect(data).to.be.eql({ status: 'created', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
+            chai
+              .expect(calls[0].args[0])
+              .to.be.equal('http://127.0.0.1:8080/v1/machine');
+            chai
+              .expect(calls[0].args[1])
+              .to.be.equal(JSON.stringify(definition));
+            chai.expect(data).to.be.eql({
+              status: 'created',
+              orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
+            });
           });
       });
     });
@@ -63,17 +79,22 @@ describe('state-machine-service', () => {
     it('errors when status is not 200', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 500,
-        data: 'Test error',
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+          data: 'Test error',
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.createStateMachine({ test: 'test' })
+      return client
+        .createStateMachine({ test: 'test' })
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
-          chai.expect(err.message).to.be.equal('An error occurred while creating the state machine.');
+          chai
+            .expect(err.message)
+            .to.be.equal('An error occurred while creating the state machine.');
         });
     });
   });
@@ -83,19 +104,26 @@ describe('state-machine-service', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
       const definition = { a: 'a', b: 'b' };
-      postStub.returns(Promise.resolve({
-        status: 200,
-        data: definition,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 200,
+          data: definition,
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
+      return client
+        .getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123');
+          chai
+            .expect(calls[0].args[0])
+            .to.be.equal(
+              'http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123',
+            );
           chai.expect(data).to.be.eql(definition);
         });
     });
@@ -103,18 +131,25 @@ describe('state-machine-service', () => {
     it('returns undefinied when execution id is not found', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
-      postStub.returns(Promise.resolve({
-        status: 404,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 404,
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
+      return client
+        .getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123');
+          chai
+            .expect(calls[0].args[0])
+            .to.be.equal(
+              'http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123',
+            );
           chai.expect(data).to.be.eql(undefined);
         });
     });
@@ -122,17 +157,24 @@ describe('state-machine-service', () => {
     it('errors when status is not known', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
-      postStub.returns(Promise.resolve({
-        status: 500,
-        data: 'Test error',
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+          data: 'Test error',
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getDetailsForExecution('test-123')
+      return client
+        .getDetailsForExecution('test-123')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
-          chai.expect(err.message).to.be.equal('An error occurred while obtaining details of the execution.');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while obtaining details of the execution.',
+            );
         });
     });
   });
@@ -142,19 +184,26 @@ describe('state-machine-service', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
       const definition = { a: 'a', b: 'b' };
-      postStub.returns(Promise.resolve({
-        status: 200,
-        data: definition,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 200,
+          data: definition,
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
+      return client
+        .getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123');
+          chai
+            .expect(calls[0].args[0])
+            .to.be.equal(
+              'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123',
+            );
           chai.expect(data).to.be.eql(definition);
         });
     });
@@ -162,18 +211,25 @@ describe('state-machine-service', () => {
     it('returns undefinied when machine id is not found', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
-      postStub.returns(Promise.resolve({
-        status: 404,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 404,
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
+      return client
+        .getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
           chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123');
+          chai
+            .expect(calls[0].args[0])
+            .to.be.equal(
+              'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123',
+            );
           chai.expect(data).to.be.eql(undefined);
         });
     });
@@ -181,17 +237,24 @@ describe('state-machine-service', () => {
     it('errors when status is not known', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
-      postStub.returns(Promise.resolve({
-        status: 500,
-        data: 'Test error',
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+          data: 'Test error',
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.getStateMachine('test-123')
+      return client
+        .getStateMachine('test-123')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
-          chai.expect(err.message).to.be.equal('An error occurred while obtaining details of the state machine.');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while obtaining details of the state machine.',
+            );
         });
     });
   });
@@ -202,21 +265,31 @@ describe('state-machine-service', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
         const argData = { a: 'a', b: 'b' };
-        postStub.returns(Promise.resolve({
-          status: 200,
-          data: { orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' },
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+            data: { orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' },
+          }),
+        );
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.invokeStateMachine('orid:1:mdsCloud:::1:sm:test-123', argData)
+        return client
+          .invokeStateMachine('orid:1:mdsCloud:::1:sm:test-123', argData)
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke');
+            chai
+              .expect(calls[0].args[0])
+              .to.be.equal(
+                'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke',
+              );
             chai.expect(calls[0].args[1]).to.be.eql(argData);
-            chai.expect(data).to.be.eql({ status: 'invoked', orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' });
+            chai.expect(data).to.be.eql({
+              status: 'invoked',
+              orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345',
+            });
           });
       });
 
@@ -224,21 +297,34 @@ describe('state-machine-service', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
         const argData = { a: 'a', b: 'b' };
-        postStub.returns(Promise.resolve({
-          status: 200,
-          data: { orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' },
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+            data: { orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' },
+          }),
+        );
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.invokeStateMachine('orid:1:mdsCloud:::1:sm:test-123', JSON.stringify(argData))
+        return client
+          .invokeStateMachine(
+            'orid:1:mdsCloud:::1:sm:test-123',
+            JSON.stringify(argData),
+          )
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke');
+            chai
+              .expect(calls[0].args[0])
+              .to.be.equal(
+                'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke',
+              );
             chai.expect(calls[0].args[1]).to.be.equal(JSON.stringify(argData));
-            chai.expect(data).to.be.eql({ status: 'invoked', orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345' });
+            chai.expect(data).to.be.eql({
+              status: 'invoked',
+              orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345',
+            });
           });
       });
     });
@@ -246,17 +332,22 @@ describe('state-machine-service', () => {
     it('errors when status is not 200', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 500,
-        data: 'Test error',
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+          data: 'Test error',
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.invokeStateMachine('test-123', {})
+      return client
+        .invokeStateMachine('test-123', {})
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
-          chai.expect(err.message).to.be.equal('An error occurred while invoking the state machine.');
+          chai
+            .expect(err.message)
+            .to.be.equal('An error occurred while invoking the state machine.');
         });
     });
   });
@@ -266,37 +357,47 @@ describe('state-machine-service', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
       const results = [];
-      postStub.returns(Promise.resolve({
-        status: 200,
-        data: results,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 200,
+          data: results,
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.listStateMachines()
-        .then((data) => {
-          // Assert
-          const calls = postStub.getCalls();
-          chai.expect(calls.length).to.be.equal(1);
-          chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machines');
-          chai.expect(data).to.be.eql(results);
-        });
+      return client.listStateMachines().then((data) => {
+        // Assert
+        const calls = postStub.getCalls();
+        chai.expect(calls.length).to.be.equal(1);
+        chai
+          .expect(calls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/machines');
+        chai.expect(data).to.be.eql(results);
+      });
     });
 
     it('errors when status is not known', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'get');
-      postStub.returns(Promise.resolve({
-        status: 500,
-        data: 'Test error',
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+          data: 'Test error',
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.listStateMachines()
+      return client
+        .listStateMachines()
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
-          chai.expect(err.message).to.be.equal('An error occurred while listing the available state machines.');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while listing the available state machines.',
+            );
         });
     });
   });
@@ -307,21 +408,31 @@ describe('state-machine-service', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
         const definition = { a: 'a', b: 'b' };
-        postStub.returns(Promise.resolve({
-          status: 200,
-          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+            data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
+          }),
+        );
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.updateStateMachine('orid:1:mdsCloud:::1:sm:abcde12345', definition)
+        return client
+          .updateStateMachine('orid:1:mdsCloud:::1:sm:abcde12345', definition)
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345');
+            chai
+              .expect(calls[0].args[0])
+              .to.be.equal(
+                'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345',
+              );
             chai.expect(calls[0].args[1]).to.be.eql(definition);
-            chai.expect(data).to.be.eql({ status: 'updated', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
+            chai.expect(data).to.be.eql({
+              status: 'updated',
+              orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
+            });
           });
       });
 
@@ -329,21 +440,36 @@ describe('state-machine-service', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
         const definition = { a: 'a', b: 'b' };
-        postStub.returns(Promise.resolve({
-          status: 200,
-          data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+            data: { orid: 'orid:1:mdsCloud:::1:sm:abcde12345' },
+          }),
+        );
         const client = new StateMachineService('http://127.0.0.1:8080');
 
         // Act
-        return client.updateStateMachine('orid:1:mdsCloud:::1:sm:abcde12345', JSON.stringify(definition))
+        return client
+          .updateStateMachine(
+            'orid:1:mdsCloud:::1:sm:abcde12345',
+            JSON.stringify(definition),
+          )
           .then((data) => {
             // Assert
             const calls = postStub.getCalls();
             chai.expect(calls.length).to.be.equal(1);
-            chai.expect(calls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345');
-            chai.expect(calls[0].args[1]).to.be.equal(JSON.stringify(definition));
-            chai.expect(data).to.be.eql({ status: 'updated', orid: 'orid:1:mdsCloud:::1:sm:abcde12345' });
+            chai
+              .expect(calls[0].args[0])
+              .to.be.equal(
+                'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345',
+              );
+            chai
+              .expect(calls[0].args[1])
+              .to.be.equal(JSON.stringify(definition));
+            chai.expect(data).to.be.eql({
+              status: 'updated',
+              orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
+            });
           });
       });
     });
@@ -351,17 +477,22 @@ describe('state-machine-service', () => {
     it('errors when status is not 200', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 500,
-        data: 'Test error',
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+          data: 'Test error',
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.updateStateMachine('abcde12345', {})
+      return client
+        .updateStateMachine('abcde12345', {})
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
-          chai.expect(err.message).to.be.equal('An error occurred while updating the state machine.');
+          chai
+            .expect(err.message)
+            .to.be.equal('An error occurred while updating the state machine.');
         });
     });
   });
@@ -370,42 +501,52 @@ describe('state-machine-service', () => {
     it('returns a resolved promise when successful', () => {
       // Arrange
       const deleteStub = this.sandbox.stub(axios, 'delete');
-      deleteStub.returns(Promise.resolve({
-        status: 200,
-        data: {
-          orid: 'test',
-        },
-      }));
+      deleteStub.returns(
+        Promise.resolve({
+          status: 200,
+          data: {
+            orid: 'test',
+          },
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.deleteStateMachine('test')
-        .then((data) => {
-          // Assert
-          const getCalls = deleteStub.getCalls();
-          chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/test');
-          chai.expect(data).to.deep.equal({ orid: 'test' });
-        });
+      return client.deleteStateMachine('test').then((data) => {
+        // Assert
+        const getCalls = deleteStub.getCalls();
+        chai.expect(getCalls.length).to.be.equal(1);
+        chai
+          .expect(getCalls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/machine/test');
+        chai.expect(data).to.deep.equal({ orid: 'test' });
+      });
     });
 
     it('returns a rejected promise when an unknown error occurs', () => {
       // Arrange
       const deleteStub = this.sandbox.stub(axios, 'delete');
-      deleteStub.returns(Promise.resolve({
-        status: 500,
-      }));
+      deleteStub.returns(
+        Promise.resolve({
+          status: 500,
+        }),
+      );
       const client = new StateMachineService('http://127.0.0.1:8080');
 
       // Act
-      return client.deleteStateMachine('test')
+      return client
+        .deleteStateMachine('test')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/machine/test');
-          chai.expect(err.message).to.be.equal('An error occurred while deleting the state machine.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/machine/test');
+          chai
+            .expect(err.message)
+            .to.be.equal('An error occurred while deleting the state machine.');
         });
     });
   });

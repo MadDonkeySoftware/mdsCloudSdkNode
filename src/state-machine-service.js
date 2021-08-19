@@ -24,28 +24,33 @@ function Client(serviceUrl, authManager) {
  * @param {String} definition The state machine definition
  * @returns {Promise<CreateStateMachineResponse|VError>}
  */
-Client.prototype.createStateMachine = async function createStateMachine(definition) {
+Client.prototype.createStateMachine = async function createStateMachine(
+  definition,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine');
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.post(url, definition, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          const parsedBody = resp.data;
-          return { status: 'created', orid: parsedBody.orid };
-        }
-        default:
-          throw new VError({
+  return axios.post(url, definition, options).then((resp) => {
+    switch (resp.status) {
+      case 200: {
+        const parsedBody = resp.data;
+        return { status: 'created', orid: parsedBody.orid };
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while creating the state machine.');
-      }
-    });
+          'An error occurred while creating the state machine.',
+        );
+    }
+  });
 };
 
 /**
@@ -70,28 +75,33 @@ Client.prototype.createStateMachine = async function createStateMachine(definiti
  * @param {String} orid The ORID of the state machine execution
  * @returns {Promise<ExecutionDetailsResponse|null|VError>}
  */
-Client.prototype.getDetailsForExecution = async function getDetailsForExecution(orid) {
+Client.prototype.getDetailsForExecution = async function getDetailsForExecution(
+  orid,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'execution', orid);
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return resp.data;
-        case 404:
-          return undefined;
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return resp.data;
+      case 404:
+        return undefined;
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while obtaining details of the execution.');
-      }
-    });
+          'An error occurred while obtaining details of the execution.',
+        );
+    }
+  });
 };
 
 /**
@@ -109,25 +119,28 @@ Client.prototype.getDetailsForExecution = async function getDetailsForExecution(
 Client.prototype.getStateMachine = async function getStateMachine(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return resp.data;
-        case 404:
-          return undefined;
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return resp.data;
+      case 404:
+        return undefined;
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while obtaining details of the state machine.');
-      }
-    });
+          'An error occurred while obtaining details of the state machine.',
+        );
+    }
+  });
 };
 
 /**
@@ -141,28 +154,34 @@ Client.prototype.getStateMachine = async function getStateMachine(orid) {
  * @param {Object} data The input data for the state machine
  * @returns {Promise<ExecutionDetails|null|VError>}
  */
-Client.prototype.invokeStateMachine = async function invokeStateMachine(orid, data) {
+Client.prototype.invokeStateMachine = async function invokeStateMachine(
+  orid,
+  data,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid, 'invoke');
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.post(url, data, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          const parsedBody = resp.data;
-          return { status: 'invoked', orid: parsedBody.orid };
-        }
-        default:
-          throw new VError({
+  return axios.post(url, data, options).then((resp) => {
+    switch (resp.status) {
+      case 200: {
+        const parsedBody = resp.data;
+        return { status: 'invoked', orid: parsedBody.orid };
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while invoking the state machine.');
-      }
-    });
+          'An error occurred while invoking the state machine.',
+        );
+    }
+  });
 };
 
 /**
@@ -179,23 +198,26 @@ Client.prototype.invokeStateMachine = async function invokeStateMachine(orid, da
 Client.prototype.listStateMachines = async function listStateMachines() {
   const url = urlJoin(this.serviceUrl, 'v1', 'machines');
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return resp.data;
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return resp.data;
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while listing the available state machines.');
-      }
-    });
+          'An error occurred while listing the available state machines.',
+        );
+    }
+  });
 };
 
 /**
@@ -209,28 +231,34 @@ Client.prototype.listStateMachines = async function listStateMachines() {
  * @param {String} definition The state machine definition
  * @returns {Promise<UpdateStateMachineResponse|VError>}
  */
-Client.prototype.updateStateMachine = async function updateStateMachine(orid, definition) {
+Client.prototype.updateStateMachine = async function updateStateMachine(
+  orid,
+  definition,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.post(url, definition, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          const parsedBody = resp.data;
-          return { status: 'updated', orid: parsedBody.orid };
-        }
-        default:
-          throw new VError({
+  return axios.post(url, definition, options).then((resp) => {
+    switch (resp.status) {
+      case 200: {
+        const parsedBody = resp.data;
+        return { status: 'updated', orid: parsedBody.orid };
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while updating the state machine.');
-      }
-    });
+          'An error occurred while updating the state machine.',
+        );
+    }
+  });
 };
 
 /**
@@ -246,25 +274,28 @@ Client.prototype.updateStateMachine = async function updateStateMachine(orid, de
 Client.prototype.deleteStateMachine = async function deleteStateMachine(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid);
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.delete(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          const parsedBody = resp.data;
-          return { orid: parsedBody.orid };
-        }
-        default:
-          throw new VError({
+  return axios.delete(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200: {
+        const parsedBody = resp.data;
+        return { orid: parsedBody.orid };
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while deleting the state machine.');
-      }
-    });
+          'An error occurred while deleting the state machine.',
+        );
+    }
+  });
 };
 
 module.exports = Client;

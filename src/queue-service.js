@@ -32,7 +32,10 @@ function Client(serviceUrl, authManager) {
  * @param {CreateOptions} options the options with which to create the queue
  * @returns {Promise<CreateResult|VError>}
  */
-Client.prototype.createQueue = async function createQueue(name, { resource, dlq } = {}) {
+Client.prototype.createQueue = async function createQueue(
+  name,
+  { resource, dlq } = {},
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue');
   const body = {
     name,
@@ -46,7 +49,9 @@ Client.prototype.createQueue = async function createQueue(name, { resource, dlq 
     body.dlq = dlq;
   }
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
   const resp = await axios.post(url, body, options);
 
   switch (resp.status) {
@@ -75,7 +80,9 @@ Client.prototype.createQueue = async function createQueue(name, { resource, dlq 
  */
 Client.prototype.deleteMessage = async function deleteMessage(orid, id) {
   const url = urlJoin(this.serviceUrl, 'v1', 'message', orid, id);
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
   const resp = await axios.delete(url, options);
   switch (resp.status) {
@@ -101,7 +108,9 @@ Client.prototype.deleteMessage = async function deleteMessage(orid, id) {
  */
 Client.prototype.deleteQueue = async function deleteQueue(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid);
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
   const resp = await axios.delete(url, options);
   switch (resp.status) {
@@ -129,7 +138,9 @@ Client.prototype.deleteQueue = async function deleteQueue(orid) {
 Client.prototype.enqueueMessage = async function enqueueMessage(orid, message) {
   const url = urlJoin(this.serviceUrl, 'v1', 'message', orid);
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
   const resp = await axios.post(url, message, options);
   switch (resp.status) {
     case 200:
@@ -163,7 +174,9 @@ Client.prototype.enqueueMessage = async function enqueueMessage(orid, message) {
  */
 Client.prototype.fetchMessage = async function fetchMessage(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'message', orid);
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
   const resp = await axios.get(url, options);
   switch (resp.status) {
@@ -197,15 +210,20 @@ Client.prototype.fetchMessage = async function fetchMessage(orid) {
  */
 Client.prototype.getQueueDetails = async function getQueueDetails(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid, 'details');
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
   const resp = await axios.get(url, options);
   switch (resp.status) {
     case 200:
-      return _.merge({
-        resource: undefined,
-        dlq: undefined,
-      }, resp.data);
+      return _.merge(
+        {
+          resource: undefined,
+          dlq: undefined,
+        },
+        resp.data,
+      );
     default:
       throw new VError(
         {
@@ -231,7 +249,9 @@ Client.prototype.getQueueDetails = async function getQueueDetails(orid) {
  */
 Client.prototype.getQueueLength = async function getQueueLength(orid) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid, 'length');
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
   const resp = await axios.get(url, options);
   switch (resp.status) {
@@ -256,7 +276,9 @@ Client.prototype.getQueueLength = async function getQueueLength(orid) {
  */
 Client.prototype.listQueues = async function listQueues() {
   const url = urlJoin(this.serviceUrl, 'v1', 'queues');
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
   const resp = await axios.get(url, options);
   switch (resp.status) {
@@ -287,7 +309,10 @@ Client.prototype.listQueues = async function listQueues() {
  * @param {UpdateOptions} options
  * @returns {Promise<void|VError>}
  */
-Client.prototype.updateQueue = async function updateQueue(orid, { resource, dlq } = {}) {
+Client.prototype.updateQueue = async function updateQueue(
+  orid,
+  { resource, dlq } = {},
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid);
   const body = {};
   let skipPost = true;
@@ -311,7 +336,9 @@ Client.prototype.updateQueue = async function updateQueue(orid, { resource, dlq 
     );
   }
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
   const resp = await axios.post(url, body, options);
   switch (resp.status) {

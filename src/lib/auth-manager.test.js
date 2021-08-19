@@ -8,8 +8,7 @@ const AuthManager = require('./auth-manager');
 const InMemoryCache = require('./in-memory-cache');
 
 describe('auth-manager', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
     sinon.restore();
@@ -53,7 +52,9 @@ describe('auth-manager', () => {
 
       const postCalls = postStub.getCalls();
       chai.expect(postCalls.length).to.be.equal(1);
-      chai.expect(postCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/authenticate');
+      chai
+        .expect(postCalls[0].args[0])
+        .to.be.equal('http://127.0.0.1:8080/v1/authenticate');
     });
 
     it('Expired cache key removed on subsequent calls', async () => {
@@ -84,7 +85,9 @@ describe('auth-manager', () => {
 
       const postCalls = postStub.getCalls();
       chai.expect(postCalls.length).to.be.equal(1);
-      chai.expect(postCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/authenticate');
+      chai
+        .expect(postCalls[0].args[0])
+        .to.be.equal('http://127.0.0.1:8080/v1/authenticate');
       chai.expect(cache.remove.getCalls().length).to.be.equal(1);
     });
 
@@ -103,8 +106,12 @@ describe('auth-manager', () => {
         // Assert
         const postCalls = postStub.getCalls();
         chai.expect(postCalls.length).to.be.equal(1);
-        chai.expect(postCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/authenticate');
-        chai.expect(err.message).to.be.equal('An error occurred while authenticating.');
+        chai
+          .expect(postCalls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/authenticate');
+        chai
+          .expect(err.message)
+          .to.be.equal('An error occurred while authenticating.');
       });
     });
   });

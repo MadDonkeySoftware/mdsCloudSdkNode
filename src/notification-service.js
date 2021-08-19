@@ -45,21 +45,22 @@ Client.prototype.emit = async function emit(topicOrid, message) {
     },
   });
 
-  return axios.post(url, message, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return Promise.resolve();
-        default:
-          throw new VError({
+  return axios.post(url, message, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return Promise.resolve();
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while attempting to emit the message.');
-      }
-    });
+          'An error occurred while attempting to emit the message.',
+        );
+    }
+  });
 };
 
 /**

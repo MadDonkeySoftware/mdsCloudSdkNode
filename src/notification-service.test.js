@@ -31,9 +31,11 @@ describe('notification-service', () => {
       it('message is string', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
-        postStub.returns(Promise.resolve({
-          status: 200,
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+          }),
+        );
         const client = getClient();
 
         // Act
@@ -41,7 +43,9 @@ describe('notification-service', () => {
           // assert
           const axiosPostCalls = postStub.getCalls();
           chai.expect(axiosPostCalls.length).to.be.eql(1);
-          chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
+          chai
+            .expect(axiosPostCalls[0].args[0])
+            .to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
           chai.expect(axiosPostCalls[0].args[1]).to.be.eql('some message');
         });
       });
@@ -49,9 +53,11 @@ describe('notification-service', () => {
       it('message is object', () => {
         // Arrange
         const postStub = this.sandbox.stub(axios, 'post');
-        postStub.returns(Promise.resolve({
-          status: 200,
-        }));
+        postStub.returns(
+          Promise.resolve({
+            status: 200,
+          }),
+        );
         const client = getClient();
 
         // Act
@@ -60,7 +66,9 @@ describe('notification-service', () => {
           // assert
           const axiosPostCalls = postStub.getCalls();
           chai.expect(axiosPostCalls.length).to.be.eql(1);
-          chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
+          chai
+            .expect(axiosPostCalls[0].args[0])
+            .to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
           chai.expect(axiosPostCalls[0].args[1]).to.be.eql(msg);
         });
       });
@@ -69,10 +77,12 @@ describe('notification-service', () => {
     it('return rejected promise when underlying service returns non 200', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 400,
-        data: 'some response',
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 400,
+          data: 'some response',
+        }),
+      );
       const client = getClient();
 
       // Act
@@ -80,7 +90,9 @@ describe('notification-service', () => {
         // assert
         const axiosPostCalls = postStub.getCalls();
         chai.expect(axiosPostCalls.length).to.be.eql(1);
-        chai.expect(axiosPostCalls[0].args[0]).to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
+        chai
+          .expect(axiosPostCalls[0].args[0])
+          .to.be.eql('http://127.0.0.1:8080/v1/emit/test-topic');
         chai.expect(axiosPostCalls[0].args[1]).to.be.eql('some message');
         chai.expect(verror.info(err)).to.be.eql({
           status: 400,
@@ -166,12 +178,15 @@ describe('notification-service', () => {
           testDone(err);
         }
       };
-      getClient({
-        socketClient: (url, opts) => {
-          opts.auth(testAuthCb);
-          return {};
+      getClient(
+        {
+          socketClient: (url, opts) => {
+            opts.auth(testAuthCb);
+            return {};
+          },
         },
-      }, authManager);
+        authManager,
+      );
     });
   });
 });

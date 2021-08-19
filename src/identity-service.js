@@ -44,23 +44,26 @@ Client.prototype.register = async function register(meta) {
     accountName: meta.accountName,
   };
 
-  const options = await utils.getRequestOptions({ allowSelfSignCert: this.allowSelfSignCert });
+  const options = await utils.getRequestOptions({
+    allowSelfSignCert: this.allowSelfSignCert,
+  });
 
-  return axios.post(url, body, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return { ...resp.data };
-        default:
-          throw new VError({
+  return axios.post(url, body, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return { ...resp.data };
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while registering a new account.');
-      }
-    });
+          'An error occurred while registering a new account.',
+        );
+    }
+  });
 };
 
 /**
@@ -98,21 +101,22 @@ Client.prototype.updateUser = async function updateUser(meta) {
     authManager: this.authManager,
   });
 
-  return axios.post(url, body, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return { ...resp.data };
-        default:
-          throw new VError({
+  return axios.post(url, body, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return { ...resp.data };
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while updating the user.');
-      }
-    });
+          'An error occurred while updating the user.',
+        );
+    }
+  });
 };
 
 /**
@@ -121,23 +125,26 @@ Client.prototype.updateUser = async function updateUser(meta) {
 Client.prototype.getPublicSignature = async function updateUser() {
   const url = urlJoin(this.serviceUrl, 'v1', 'publicSignature');
 
-  const options = await utils.getRequestOptions({ allowSelfSignCert: this.allowSelfSignCert });
+  const options = await utils.getRequestOptions({
+    allowSelfSignCert: this.allowSelfSignCert,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return { ...resp.data };
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return { ...resp.data };
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while acquiring the public signature.');
-      }
-    });
+          'An error occurred while acquiring the public signature.',
+        );
+    }
+  });
 };
 
 /**
@@ -159,21 +166,22 @@ Client.prototype.impersonateUser = async function impersonateUser(meta) {
     authManager: this.authManager,
   });
 
-  return axios.post(url, body, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return { ...resp.data };
-        default:
-          throw new VError({
+  return axios.post(url, body, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return { ...resp.data };
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while obtaining impersonation token.');
-      }
-    });
+          'An error occurred while obtaining impersonation token.',
+        );
+    }
+  });
 };
 
 module.exports = Client;

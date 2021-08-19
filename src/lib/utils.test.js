@@ -41,17 +41,18 @@ describe('utils', () => {
       stubAxiosGet.resolves(fakeResponse);
 
       // Act
-      return utils.download(url, dest)
-        .then(() => {
-          // Assert
-          const stubCreateWriteStreamCalls = stubCreateWriteStream.getCalls();
-          chai.expect(stubCreateWriteStreamCalls.length).to.be.equal(1);
-          chai.expect(stubCreateWriteStreamCalls[0].args[0]).to.be.equal('/foo/baz/bar.txt');
+      return utils.download(url, dest).then(() => {
+        // Assert
+        const stubCreateWriteStreamCalls = stubCreateWriteStream.getCalls();
+        chai.expect(stubCreateWriteStreamCalls.length).to.be.equal(1);
+        chai
+          .expect(stubCreateWriteStreamCalls[0].args[0])
+          .to.be.equal('/foo/baz/bar.txt');
 
-          const pipeCalls = fakeResponse.data.pipe.getCalls();
-          chai.expect(pipeCalls.length).to.be.equal(1);
-          chai.expect(pipeCalls[0].args[0]).to.be.equal(fakeWriter);
-        });
+        const pipeCalls = fakeResponse.data.pipe.getCalls();
+        chai.expect(pipeCalls.length).to.be.equal(1);
+        chai.expect(pipeCalls[0].args[0]).to.be.equal(fakeWriter);
+      });
     });
   });
 
@@ -64,19 +65,20 @@ describe('utils', () => {
   });
 
   describe('getRequestOptions', () => {
-    it('Resolves default options when no options are provided', () => utils.getRequestOptions().then((options) => {
-      // Assert
-      const validationStatusFunc = options.validateStatus;
-      // eslint-disable-next-line no-param-reassign
-      delete options.validateStatus;
+    it('Resolves default options when no options are provided', () =>
+      utils.getRequestOptions().then((options) => {
+        // Assert
+        const validationStatusFunc = options.validateStatus;
+        // eslint-disable-next-line no-param-reassign
+        delete options.validateStatus;
 
-      chai.expect(validationStatusFunc()).to.equal(true);
-      chai.expect(options).to.deep.equal({
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }));
+        chai.expect(validationStatusFunc()).to.equal(true);
+        chai.expect(options).to.deep.equal({
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }));
 
     it('Resolves proper options when headers are provided', () => {
       // Arrange
@@ -187,11 +189,13 @@ describe('utils', () => {
             Token: 'testAuthToken',
           },
         });
-        chai.expect(authManager.getAuthenticationToken.getCall(0).args[0]).to.deep.equal({
-          accountId: 'testAccount',
-          userId: 'testUserId',
-          password: 'testPassword',
-        });
+        chai
+          .expect(authManager.getAuthenticationToken.getCall(0).args[0])
+          .to.deep.equal({
+            accountId: 'testAccount',
+            userId: 'testUserId',
+            password: 'testPassword',
+          });
       });
     });
   });
@@ -206,7 +210,8 @@ describe('utils', () => {
           if (event === 'close') onCloseCb = cb;
           if (event === 'error') onErrorCb = cb;
         },
-        call: (event, data) => (event === 'close' ? onCloseCb(data) : onErrorCb(data)),
+        call: (event, data) =>
+          event === 'close' ? onCloseCb(data) : onErrorCb(data),
       };
       const archiveStub = {
         finalize: () => outFileStub.call('close'),
@@ -219,12 +224,11 @@ describe('utils', () => {
       this.sandbox.stub(fs, 'createWriteStream').returns(outFileStub);
 
       // Act
-      proxiedUtils.createArchiveFromDirectory('/tmp/foo')
-        .then((meta) => {
-          // Assert
-          chai.expect(meta.filePath).to.be.equal('/tmp/foo.zip');
-          chai.expect(meta.userSupplied).to.be.equal(false);
-        });
+      proxiedUtils.createArchiveFromDirectory('/tmp/foo').then((meta) => {
+        // Assert
+        chai.expect(meta.filePath).to.be.equal('/tmp/foo.zip');
+        chai.expect(meta.userSupplied).to.be.equal(false);
+      });
     });
 
     it('Archival failure', () => {
@@ -236,7 +240,8 @@ describe('utils', () => {
           if (event === 'close') onCloseCb = cb;
           if (event === 'error') onErrorCb = cb;
         },
-        call: (event, data) => (event === 'close' ? onCloseCb(data) : onErrorCb(data)),
+        call: (event, data) =>
+          event === 'close' ? onCloseCb(data) : onErrorCb(data),
       };
       const archiveStub = {
         finalize: () => outFileStub.call('error', new Error('test error')),
@@ -249,7 +254,8 @@ describe('utils', () => {
       this.sandbox.stub(fs, 'createWriteStream').returns(outFileStub);
 
       // Act
-      proxiedUtils.createArchiveFromDirectory('/tmp/foo')
+      proxiedUtils
+        .createArchiveFromDirectory('/tmp/foo')
         .then(() => {
           throw new Error('Test passed when it should have failed');
         })

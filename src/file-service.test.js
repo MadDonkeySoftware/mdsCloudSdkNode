@@ -19,37 +19,47 @@ describe('file-service', () => {
       // Arrange
       const expectedResult = ['test', 'test2'];
       const getStub = this.sandbox.stub(axios, 'get');
-      getStub.returns(Promise.resolve({
-        status: 200,
-        data: expectedResult,
-      }));
+      getStub.returns(
+        Promise.resolve({
+          status: 200,
+          data: expectedResult,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.listContainers()
-        .then((containers) => {
-          // Assert
-          const getCalls = getStub.getCalls();
-          chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/containers');
-          chai.expect(containers).to.be.eql(expectedResult);
-        });
+      return client.listContainers().then((containers) => {
+        // Assert
+        const getCalls = getStub.getCalls();
+        chai.expect(getCalls.length).to.be.equal(1);
+        chai
+          .expect(getCalls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/containers');
+        chai.expect(containers).to.be.eql(expectedResult);
+      });
     });
 
     it('errors when status is not 200', () => {
       // Arrange
       const getStub = this.sandbox.stub(axios, 'get');
-      getStub.returns(Promise.resolve({
-        status: 500,
-        data: 'Test error',
-      }));
+      getStub.returns(
+        Promise.resolve({
+          status: 500,
+          data: 'Test error',
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.listContainers()
+      return client
+        .listContainers()
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
-          chai.expect(err.message).to.be.equal('An error occurred while obtaining the list of available containers.');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while obtaining the list of available containers.',
+            );
         });
     });
   });
@@ -58,59 +68,76 @@ describe('file-service', () => {
     it('returns a resolved promise when successful', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 201,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 201,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.createContainer('test')
-        .then((data) => {
-          // Assert
-          const getCalls = postStub.getCalls();
-          chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/createContainer/test');
-          chai.expect(data).to.be.equal(undefined);
-        });
+      return client.createContainer('test').then((data) => {
+        // Assert
+        const getCalls = postStub.getCalls();
+        chai.expect(getCalls.length).to.be.equal(1);
+        chai
+          .expect(getCalls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/createContainer/test');
+        chai.expect(data).to.be.equal(undefined);
+      });
     });
 
     it('returns a rejected promise when container already exists', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 409,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 409,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.createContainer('test')
+      return client
+        .createContainer('test')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/createContainer/test');
-          chai.expect(err.message).to.be.equal('Container with the name "test" already exists.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/createContainer/test');
+          chai
+            .expect(err.message)
+            .to.be.equal('Container with the name "test" already exists.');
         });
     });
 
     it('returns a rejected promise when an unknown error occurs', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 500,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.createContainer('test')
+      return client
+        .createContainer('test')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/createContainer/test');
-          chai.expect(err.message).to.be.equal('An error occurred while creating the container.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/createContainer/test');
+          chai
+            .expect(err.message)
+            .to.be.equal('An error occurred while creating the container.');
         });
     });
   });
@@ -121,20 +148,23 @@ describe('file-service', () => {
       const orid = 'orid:1:mdsCloud:::1:fs:test';
       const path = 'foo/bar';
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 201,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 201,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.createContainerPath(orid, path)
-        .then((data) => {
-          // Assert
-          const getCalls = postStub.getCalls();
-          chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
-          chai.expect(data).to.be.equal(undefined);
-        });
+      return client.createContainerPath(orid, path).then((data) => {
+        // Assert
+        const getCalls = postStub.getCalls();
+        chai.expect(getCalls.length).to.be.equal(1);
+        chai
+          .expect(getCalls[0].args[0])
+          .to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
+        chai.expect(data).to.be.equal(undefined);
+      });
     });
 
     it('returns a rejected promise when container already exists', () => {
@@ -142,20 +172,29 @@ describe('file-service', () => {
       const orid = 'orid:1:mdsCloud:::1:fs:test';
       const path = 'foo/bar';
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 409,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 409,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.createContainerPath(orid, path)
+      return client
+        .createContainerPath(orid, path)
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
-          chai.expect(err.message).to.be.equal(`Container path "${path}" already exists in container "${orid}".`);
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              `Container path "${path}" already exists in container "${orid}".`,
+            );
         });
     });
 
@@ -164,20 +203,29 @@ describe('file-service', () => {
       const orid = 'orid:1:mdsCloud:::1:fs:test';
       const path = 'foo/bar';
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 500,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.createContainerPath(orid, path)
+      return client
+        .createContainerPath(orid, path)
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
-          chai.expect(err.message).to.be.equal('An error occurred while creating the path in the container.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal(`http://127.0.0.1:8080/v1/create/${orid}/${path}`);
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while creating the path in the container.',
+            );
         });
     });
   });
@@ -186,59 +234,80 @@ describe('file-service', () => {
     it('returns a resolved promise when successful', () => {
       // Arrange
       const deleteStub = this.sandbox.stub(axios, 'delete');
-      deleteStub.returns(Promise.resolve({
-        status: 204,
-      }));
+      deleteStub.returns(
+        Promise.resolve({
+          status: 204,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.deleteContainerOrPath('test')
-        .then((data) => {
-          // Assert
-          const getCalls = deleteStub.getCalls();
-          chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/test');
-          chai.expect(data).to.be.equal(undefined);
-        });
+      return client.deleteContainerOrPath('test').then((data) => {
+        // Assert
+        const getCalls = deleteStub.getCalls();
+        chai.expect(getCalls.length).to.be.equal(1);
+        chai
+          .expect(getCalls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/test');
+        chai.expect(data).to.be.equal(undefined);
+      });
     });
 
     it('returns a rejected promise when container already exists', () => {
       // Arrange
       const deleteStub = this.sandbox.stub(axios, 'delete');
-      deleteStub.returns(Promise.resolve({
-        status: 409,
-      }));
+      deleteStub.returns(
+        Promise.resolve({
+          status: 409,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.deleteContainerOrPath('test')
+      return client
+        .deleteContainerOrPath('test')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/test');
-          chai.expect(err.message).to.be.equal('An error occurred while removing the container or path.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/test');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while removing the container or path.',
+            );
         });
     });
 
     it('returns a rejected promise when an unknown error occurs', () => {
       // Arrange
       const deleteStub = this.sandbox.stub(axios, 'delete');
-      deleteStub.returns(Promise.resolve({
-        status: 500,
-      }));
+      deleteStub.returns(
+        Promise.resolve({
+          status: 500,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.deleteContainerOrPath('test')
+      return client
+        .deleteContainerOrPath('test')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = deleteStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/test');
-          chai.expect(err.message).to.be.equal('An error occurred while removing the container or path.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/test');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while removing the container or path.',
+            );
         });
     });
   });
@@ -252,11 +321,10 @@ describe('file-service', () => {
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.downloadFile('test/foo')
-        .then((buff) => {
-          // Assert
-          chai.expect(buff).to.be.equal(fakeBuffer);
-        });
+      return client.downloadFile('test/foo').then((buff) => {
+        // Assert
+        chai.expect(buff).to.be.equal(fakeBuffer);
+      });
     });
   });
 
@@ -268,40 +336,52 @@ describe('file-service', () => {
         files: ['file1', 'file2'],
       };
       const getStub = this.sandbox.stub(axios, 'get');
-      getStub.returns(Promise.resolve({
-        status: 200,
-        data: expectedResult,
-      }));
+      getStub.returns(
+        Promise.resolve({
+          status: 200,
+          data: expectedResult,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.listContainerContents('test')
-        .then((data) => {
-          // Assert
-          const getCalls = getStub.getCalls();
-          chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/list/test');
-          chai.expect(data).to.be.eql(expectedResult);
-        });
+      return client.listContainerContents('test').then((data) => {
+        // Assert
+        const getCalls = getStub.getCalls();
+        chai.expect(getCalls.length).to.be.equal(1);
+        chai
+          .expect(getCalls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/list/test');
+        chai.expect(data).to.be.eql(expectedResult);
+      });
     });
 
     it('returns a rejected promise when an unknown error occurs', () => {
       // Arrange
       const getStub = this.sandbox.stub(axios, 'get');
-      getStub.returns(Promise.resolve({
-        status: 500,
-      }));
+      getStub.returns(
+        Promise.resolve({
+          status: 500,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.listContainerContents('test')
+      return client
+        .listContainerContents('test')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = getStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/list/test');
-          chai.expect(err.message).to.be.equal('An error occurred while obtaining the content list of a container.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/list/test');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while obtaining the content list of a container.',
+            );
         });
     });
   });
@@ -310,39 +390,51 @@ describe('file-service', () => {
     it('returns a resolved promise when successful', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 200,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 200,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.uploadFile('test', './foo')
-        .then((data) => {
-          // Assert
-          const getCalls = postStub.getCalls();
-          chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/upload/test');
-          chai.expect(data).to.be.eql(undefined);
-        });
+      return client.uploadFile('test', './foo').then((data) => {
+        // Assert
+        const getCalls = postStub.getCalls();
+        chai.expect(getCalls.length).to.be.equal(1);
+        chai
+          .expect(getCalls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/upload/test');
+        chai.expect(data).to.be.eql(undefined);
+      });
     });
 
     it('returns a rejected promise when an unknown error occurs', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
-      postStub.returns(Promise.resolve({
-        status: 500,
-      }));
+      postStub.returns(
+        Promise.resolve({
+          status: 500,
+        }),
+      );
       const client = new FileService('http://127.0.0.1:8080');
 
       // Act
-      return client.uploadFile('test', './foo')
+      return client
+        .uploadFile('test', './foo')
         .then(() => new Error('Test hit then when should hit catch.'))
         .catch((err) => {
           // Assert
           const getCalls = postStub.getCalls();
           chai.expect(getCalls.length).to.be.equal(1);
-          chai.expect(getCalls[0].args[0]).to.be.equal('http://127.0.0.1:8080/v1/upload/test');
-          chai.expect(err.message).to.be.equal('An error occurred while uploading the file to the container.');
+          chai
+            .expect(getCalls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/upload/test');
+          chai
+            .expect(err.message)
+            .to.be.equal(
+              'An error occurred while uploading the file to the container.',
+            );
         });
     });
   });
