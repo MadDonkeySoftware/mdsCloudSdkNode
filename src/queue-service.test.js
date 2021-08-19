@@ -14,7 +14,7 @@ describe(__filename, () => {
   });
 
   describe('createQueue', () => {
-    it('returns status created when new container is created', () => {
+    it('returns status created when new container is created without metadata', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(
@@ -37,7 +37,7 @@ describe(__filename, () => {
       });
     });
 
-    it('returns status created when new container is created', () => {
+    it('returns status created when new container is created with resource metadata', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
       postStub.returns(
@@ -49,7 +49,7 @@ describe(__filename, () => {
 
       // Act
       return client
-        .createQueue('test-queue', { resource: 'http://127.0.0.1:8888/invoke' })
+        .createQueue('test-queue', { resource: 'someResource' })
         .then((data) => {
           // Assert
           const calls = postStub.getCalls();
@@ -59,7 +59,35 @@ describe(__filename, () => {
             .to.be.equal('http://127.0.0.1:8080/v1/queue');
           chai.expect(calls[0].args[1]).to.be.eql({
             name: 'test-queue',
-            resource: 'http://127.0.0.1:8888/invoke',
+            resource: 'someResource',
+          });
+          chai.expect(data).to.be.eql({ status: 'created' });
+        });
+    });
+
+    it('returns status created when new container is created with dlq metadata', () => {
+      // Arrange
+      const postStub = this.sandbox.stub(axios, 'post');
+      postStub.returns(
+        Promise.resolve({
+          status: 201,
+        }),
+      );
+      const client = new QueueService('http://127.0.0.1:8080');
+
+      // Act
+      return client
+        .createQueue('test-queue', { dlq: 'someDlq' })
+        .then((data) => {
+          // Assert
+          const calls = postStub.getCalls();
+          chai.expect(calls.length).to.be.equal(1);
+          chai
+            .expect(calls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/queue');
+          chai.expect(calls[0].args[1]).to.be.eql({
+            name: 'test-queue',
+            dlq: 'someDlq',
           });
           chai.expect(data).to.be.eql({ status: 'created' });
         });
@@ -617,6 +645,51 @@ describe(__filename, () => {
         });
     });
 
+    it('resolves a empty promise when dlq is updated to null and result is successful', () => {
+      // Arrange
+      const postStub = this.sandbox.stub(axios, 'post');
+      postStub.returns(
+        Promise.resolve({
+          status: 200,
+        }),
+      );
+      const client = new QueueService('http://127.0.0.1:8080');
+
+      // Act
+      return client.updateQueue('test-queue', { dlq: 'NULL' }).then((data) => {
+        // Assert
+        const calls = postStub.getCalls();
+        chai.expect(calls.length).to.be.equal(1);
+        chai
+          .expect(calls[0].args[0])
+          .to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue');
+        chai.expect(data).to.be.eql(undefined);
+      });
+    });
+
+    it('resolves a empty promise when dlq is updated and result is successful', () => {
+      // Arrange
+      const postStub = this.sandbox.stub(axios, 'post');
+      postStub.returns(
+        Promise.resolve({
+          status: 200,
+        }),
+      );
+      const client = new QueueService('http://127.0.0.1:8080');
+
+      // Act
+      return client
+        .updateQueue('test-queue', { dlq: 'someDlqResource' })
+        .then((data) => {
+          // Assert
+          const calls = postStub.getCalls();
+          chai.expect(calls.length).to.be.equal(1);
+          chai
+            .expect(calls[0].args[0])
+            .to.be.equal('http://127.0.0.1:8080/v1/queue/test-queue');
+          chai.expect(data).to.be.eql(undefined);
+        });
+    });
     it('errors when no update actions are provided', () => {
       // Arrange
       const postStub = this.sandbox.stub(axios, 'post');
