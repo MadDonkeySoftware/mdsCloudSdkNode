@@ -229,11 +229,12 @@ const getArchivePath = (sourcePathOrFile) =>
  */
 
 /**
- * Gets the details of a function
+ * Updates the code of a function on the serverless function provider
  * @param {String} id The identifier of the function to update
  * @param {String} runtime The runtime to utilize for the function
  * @param {String} entryPoint The entry point to use for the function
  * @param {String} sourcePathOrFile A path to the source directory or a zip file to upload
+ * @param {String} [context] A string containing whatever context data this function should run with
  * @returns {Promise<UpdateFunctionResponse|VError>}
  */
 Client.prototype.updateFunctionCode = function updateFunctionCode(
@@ -241,6 +242,7 @@ Client.prototype.updateFunctionCode = function updateFunctionCode(
   runtime,
   entryPoint,
   sourcePathOrFile,
+  context,
 ) {
   return getArchivePath(sourcePathOrFile)
     .then((pathMeta) => {
@@ -248,6 +250,9 @@ Client.prototype.updateFunctionCode = function updateFunctionCode(
       form.append('sourceArchive', fs.createReadStream(pathMeta.filePath));
       form.append('runtime', runtime);
       form.append('entryPoint', entryPoint);
+      if (context) {
+        form.append('context', context);
+      }
       return [pathMeta, form];
     })
     .then(([pathMeta, form]) => {
