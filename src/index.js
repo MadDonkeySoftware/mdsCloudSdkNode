@@ -42,7 +42,16 @@ const getAuthManager = (environment) => {
  * @param {string} [data.allowSelfSignCert] Allow self signed certificates when communicating with identity.
  */
 function Sdk({
-  qsUrl, smUrl, fsUrl, nsUrl, sfUrl, identityUrl, account, userId, password, allowSelfSignCert,
+  qsUrl,
+  smUrl,
+  fsUrl,
+  nsUrl,
+  sfUrl,
+  identityUrl,
+  account,
+  userId,
+  password,
+  allowSelfSignCert,
 }) {
   this.qsUrl = qsUrl;
   this.smUrl = smUrl;
@@ -95,59 +104,52 @@ const initialize = (data) => {
       allowSelfSignCert: envData.allowSelfSignCert,
     });
   } else {
-    throw new Error(`Initialization of MDS SDK failed. Type '${typeof data}' not supported.`);
+    throw new Error(
+      `Initialization of MDS SDK failed. Type '${typeof data}' not supported.`,
+    );
   }
 };
 
 /**
  * Creates a new file service client
  */
-const getFileServiceClient = () => new FileService(
-  SINGLETON.fsUrl,
-  getAuthManager(),
-);
+const getFileServiceClient = () =>
+  new FileService(SINGLETON.fsUrl, getAuthManager());
 
 /**
  * Creates a new queue service client
  */
-const getQueueServiceClient = () => new QueueService(
-  SINGLETON.qsUrl,
-  getAuthManager(),
-);
+const getQueueServiceClient = () =>
+  new QueueService(SINGLETON.qsUrl, getAuthManager());
 
 /**
  * Creates a new state machine client
  * @param {String} [smUrl] Override for the state machine service endpoint.
  */
-const getStateMachineServiceClient = () => new StateMachineService(
-  SINGLETON.smUrl,
-  getAuthManager(),
-);
+const getStateMachineServiceClient = () =>
+  new StateMachineService(SINGLETON.smUrl, getAuthManager());
 
 /**
  * Creates a new notification service client
  */
-const getNotificationServiceClient = () => new NotificationService(
-  SINGLETON.nsUrl,
-  getAuthManager(),
-);
+const getNotificationServiceClient = () =>
+  new NotificationService(SINGLETON.nsUrl, getAuthManager());
 
 /**
  * Creates a new serverless function client
  */
-const getServerlessFunctionsClient = () => new ServerlessFunctions(
-  SINGLETON.sfUrl,
-  getAuthManager(),
-);
+const getServerlessFunctionsClient = () =>
+  new ServerlessFunctions(SINGLETON.sfUrl, getAuthManager());
 
 /**
  * Creates a new identity client
  */
-const getIdentityServiceClient = () => new IdentityService(
-  SINGLETON.identityUrl,
-  getAuthManager(),
-  SINGLETON.allowSelfSignCert,
-);
+const getIdentityServiceClient = () =>
+  new IdentityService(
+    SINGLETON.identityUrl,
+    getAuthManager(),
+    SINGLETON.allowSelfSignCert,
+  );
 
 module.exports = {
   initialize,

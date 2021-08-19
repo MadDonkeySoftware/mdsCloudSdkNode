@@ -4,8 +4,7 @@ const sinon = require('sinon');
 const InMemoryCache = require('./in-memory-cache');
 
 describe('in-memory-cache', () => {
-  beforeEach(() => {
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
     sinon.restore();

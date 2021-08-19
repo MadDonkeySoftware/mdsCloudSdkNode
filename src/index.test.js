@@ -51,12 +51,33 @@ describe('index', () => {
       const sfClient = index.getServerlessFunctionsClient();
       const identityClient = index.getIdentityServiceClient();
 
-      chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
-      chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
-      chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
-      chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
-      chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
-      chai.expect(identityClient.serviceUrl).to.be.equal(identityUrl, 'Identity service url incorrectly configured.');
+      chai
+        .expect(qsClient.serviceUrl)
+        .to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
+      chai
+        .expect(smClient.serviceUrl)
+        .to.be.equal(
+          smUrl,
+          'State machine service url incorrectly configured.',
+        );
+      chai
+        .expect(fsClient.serviceUrl)
+        .to.be.equal(fsUrl, 'File service url incorrectly configured.');
+      chai
+        .expect(nsClient.serviceUrl)
+        .to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
+      chai
+        .expect(sfClient.serviceUrl)
+        .to.be.equal(
+          sfUrl,
+          'Serverless functions service url incorrectly configured.',
+        );
+      chai
+        .expect(identityClient.serviceUrl)
+        .to.be.equal(
+          identityUrl,
+          'Identity service url incorrectly configured.',
+        );
     });
 
     it('with string provides clients configured urls', () => {
@@ -96,12 +117,33 @@ describe('index', () => {
       const sfClient = index.getServerlessFunctionsClient();
       const identityClient = index.getIdentityServiceClient();
 
-      chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
-      chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
-      chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
-      chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
-      chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
-      chai.expect(identityClient.serviceUrl).to.be.equal(identityUrl, 'Identity service url incorrectly configured.');
+      chai
+        .expect(qsClient.serviceUrl)
+        .to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
+      chai
+        .expect(smClient.serviceUrl)
+        .to.be.equal(
+          smUrl,
+          'State machine service url incorrectly configured.',
+        );
+      chai
+        .expect(fsClient.serviceUrl)
+        .to.be.equal(fsUrl, 'File service url incorrectly configured.');
+      chai
+        .expect(nsClient.serviceUrl)
+        .to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
+      chai
+        .expect(sfClient.serviceUrl)
+        .to.be.equal(
+          sfUrl,
+          'Serverless functions service url incorrectly configured.',
+        );
+      chai
+        .expect(identityClient.serviceUrl)
+        .to.be.equal(
+          identityUrl,
+          'Identity service url incorrectly configured.',
+        );
     });
 
     it('with undefined provides clients environment configured urls', () => {
@@ -142,12 +184,33 @@ describe('index', () => {
       const sfClient = index.getServerlessFunctionsClient();
       const identityClient = index.getIdentityServiceClient();
 
-      chai.expect(qsClient.serviceUrl).to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
-      chai.expect(smClient.serviceUrl).to.be.equal(smUrl, 'State machine service url incorrectly configured.');
-      chai.expect(fsClient.serviceUrl).to.be.equal(fsUrl, 'File service url incorrectly configured.');
-      chai.expect(nsClient.serviceUrl).to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
-      chai.expect(sfClient.serviceUrl).to.be.equal(sfUrl, 'Serverless functions service url incorrectly configured.');
-      chai.expect(identityClient.serviceUrl).to.be.equal(identityUrl, 'Identity service url incorrectly configured.');
+      chai
+        .expect(qsClient.serviceUrl)
+        .to.be.equal(qsUrl, 'Queue service url incorrectly configured.');
+      chai
+        .expect(smClient.serviceUrl)
+        .to.be.equal(
+          smUrl,
+          'State machine service url incorrectly configured.',
+        );
+      chai
+        .expect(fsClient.serviceUrl)
+        .to.be.equal(fsUrl, 'File service url incorrectly configured.');
+      chai
+        .expect(nsClient.serviceUrl)
+        .to.be.equal(nsUrl, 'Notification service url incorrectly configured.');
+      chai
+        .expect(sfClient.serviceUrl)
+        .to.be.equal(
+          sfUrl,
+          'Serverless functions service url incorrectly configured.',
+        );
+      chai
+        .expect(identityClient.serviceUrl)
+        .to.be.equal(
+          identityUrl,
+          'Identity service url incorrectly configured.',
+        );
     });
   });
 
@@ -157,7 +220,11 @@ describe('index', () => {
       index.initialize(1);
       throw new Error('Test passed when it should not have.');
     } catch (err) {
-      chai.expect(err.message).to.be.equal('Initialization of MDS SDK failed. Type \'number\' not supported.');
+      chai
+        .expect(err.message)
+        .to.be.equal(
+          "Initialization of MDS SDK failed. Type 'number' not supported.",
+        );
     }
   });
 });

@@ -21,23 +21,26 @@ function Client(serviceUrl, authManager) {
  */
 Client.prototype.listContainers = async function listContainers() {
   const url = urlJoin(this.serviceUrl, 'v1', 'containers');
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return resp.data;
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return resp.data;
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while obtaining the list of available containers.');
-      }
-    });
+          'An error occurred while obtaining the list of available containers.',
+        );
+    }
+  });
 };
 
 /**
@@ -47,32 +50,37 @@ Client.prototype.listContainers = async function listContainers() {
  */
 Client.prototype.createContainer = async function createContainer(name) {
   const url = urlJoin(this.serviceUrl, 'v1', 'createContainer', name);
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.post(url, {}, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 201:
-          return Promise.resolve();
-        case 409:
-          throw new VError({
+  return axios.post(url, {}, options).then((resp) => {
+    switch (resp.status) {
+      case 201:
+        return Promise.resolve();
+      case 409:
+        throw new VError(
+          {
             name: 'AlreadyExistsError',
             info: {
               name,
             },
           },
           'Container with the name "%s" already exists.',
-          name);
-        default:
-          throw new VError({
+          name,
+        );
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while creating the container.');
-      }
-    });
+          'An error occurred while creating the container.',
+        );
+    }
+  });
 };
 
 /**
@@ -81,17 +89,22 @@ Client.prototype.createContainer = async function createContainer(name) {
  * @param {String} newPath the new path to create in the container, using / for separators.
  * @returns {Promise<void|VError>}
  */
-Client.prototype.createContainerPath = async function createContainerPath(orid, newPath) {
+Client.prototype.createContainerPath = async function createContainerPath(
+  orid,
+  newPath,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'create', orid, newPath);
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.post(url, {}, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 201:
-          return Promise.resolve();
-        case 409:
-          throw new VError({
+  return axios.post(url, {}, options).then((resp) => {
+    switch (resp.status) {
+      case 201:
+        return Promise.resolve();
+      case 409:
+        throw new VError(
+          {
             name: 'AlreadyExistsError',
             info: {
               orid,
@@ -100,17 +113,20 @@ Client.prototype.createContainerPath = async function createContainerPath(orid, 
           },
           'Container path "%s" already exists in container "%s".',
           newPath,
-          orid);
-        default:
-          throw new VError({
+          orid,
+        );
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while creating the path in the container.');
-      }
-    });
+          'An error occurred while creating the path in the container.',
+        );
+    }
+  });
 };
 
 /**
@@ -121,33 +137,40 @@ Client.prototype.createContainerPath = async function createContainerPath(orid, 
  * @param {String} containerOrPath The container name or path to an item in the container.
  * @returns {Promise<void|VError>}
  */
-Client.prototype.deleteContainerOrPath = async function deleteContainerOrPath(containerOrPath) {
+Client.prototype.deleteContainerOrPath = async function deleteContainerOrPath(
+  containerOrPath,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', containerOrPath);
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.delete(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 204:
-          return Promise.resolve();
-        case 409:
-          throw new VError({
+  return axios.delete(url, options).then((resp) => {
+    switch (resp.status) {
+      case 204:
+        return Promise.resolve();
+      case 409:
+        throw new VError(
+          {
             name: 'DoesNotExistError',
             info: {
               containerOrPath,
             },
           },
-          'An error occurred while removing the container or path.');
-        default:
-          throw new VError({
+          'An error occurred while removing the container or path.',
+        );
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while removing the container or path.');
-      }
-    });
+          'An error occurred while removing the container or path.',
+        );
+    }
+  });
 };
 
 /**
@@ -157,7 +180,10 @@ Client.prototype.deleteContainerOrPath = async function deleteContainerOrPath(co
  * @param {String} destination Path to where your file will be written
  * @returns {Promise<Buffer>}
  */
-Client.prototype.downloadFile = function downloadFile(containerPath, destination) {
+Client.prototype.downloadFile = function downloadFile(
+  containerPath,
+  destination,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'download', containerPath);
 
   return utils.download(url, destination, this.authManager);
@@ -175,25 +201,30 @@ Client.prototype.downloadFile = function downloadFile(containerPath, destination
  * @param {String} containerOrPath
  * @returns {Promise<DirectoryContents|VError>} Object containing two properties
  */
-Client.prototype.listContainerContents = async function listContainerContents(containerOrPath) {
+Client.prototype.listContainerContents = async function listContainerContents(
+  containerOrPath,
+) {
   const url = urlJoin(this.serviceUrl, 'v1', 'list', containerOrPath);
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return resp.data;
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return resp.data;
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while obtaining the content list of a container.');
-      }
-    });
+          'An error occurred while obtaining the content list of a container.',
+        );
+    }
+  });
 };
 
 /**
@@ -201,7 +232,10 @@ Client.prototype.listContainerContents = async function listContainerContents(co
  * @param {String} filePath The path to the file on the local system to upload
  * @returns {Promise<void|VError>}
  */
-Client.prototype.uploadFile = async function uploadFile(containerPath, filePath) {
+Client.prototype.uploadFile = async function uploadFile(
+  containerPath,
+  filePath,
+) {
   const form = new FormData();
   form.append('file', fs.createReadStream(filePath));
 
@@ -211,21 +245,22 @@ Client.prototype.uploadFile = async function uploadFile(containerPath, filePath)
     headers: form.getHeaders(),
   });
 
-  return axios.post(url, form, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200:
-          return Promise.resolve();
-        default:
-          throw new VError({
+  return axios.post(url, form, options).then((resp) => {
+    switch (resp.status) {
+      case 200:
+        return Promise.resolve();
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while uploading the file to the container.');
-      }
-    });
+          'An error occurred while uploading the file to the container.',
+        );
+    }
+  });
 };
 
 module.exports = Client;

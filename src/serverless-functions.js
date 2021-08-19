@@ -30,25 +30,28 @@ function Client(serviceUrl, authManager) {
 Client.prototype.createFunction = async function createStateMachine(name) {
   const url = urlJoin(this.serviceUrl, 'v1', 'create');
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.post(url, { name }, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 201: {
-          const parsedBody = resp.data;
-          return { status: 'created', id: parsedBody.orid || parsedBody.id };
-        }
-        default:
-          throw new VError({
+  return axios.post(url, { name }, options).then((resp) => {
+    switch (resp.status) {
+      case 201: {
+        const parsedBody = resp.data;
+        return { status: 'created', id: parsedBody.orid || parsedBody.id };
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while creating the serverless function.');
-      }
-    });
+          'An error occurred while creating the serverless function.',
+        );
+    }
+  });
 };
 
 /**
@@ -64,24 +67,27 @@ Client.prototype.createFunction = async function createStateMachine(name) {
 Client.prototype.listFunctions = async function createStateMachine() {
   const url = urlJoin(this.serviceUrl, 'v1', 'list');
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          return resp.data;
-        }
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200: {
+        return resp.data;
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while listing available serverless functions.');
-      }
-    });
+          'An error occurred while listing available serverless functions.',
+        );
+    }
+  });
 };
 
 /**
@@ -98,24 +104,27 @@ Client.prototype.listFunctions = async function createStateMachine() {
 Client.prototype.deleteFunction = async function deleteFunction(id) {
   const url = urlJoin(this.serviceUrl, 'v1', id);
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.delete(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 204: {
-          return { status: 'deleted', id };
-        }
-        default:
-          throw new VError({
+  return axios.delete(url, options).then((resp) => {
+    switch (resp.status) {
+      case 204: {
+        return { status: 'deleted', id };
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while deleting the function.');
-      }
-    });
+          'An error occurred while deleting the function.',
+        );
+    }
+  });
 };
 
 /**
@@ -129,30 +138,39 @@ Client.prototype.deleteFunction = async function deleteFunction(id) {
  * @param {boolean} [isAsync] True to invoke the function and not wait for the result.
  * @returns {Promise<InvokeFunctionResponse|VError>}
  */
-Client.prototype.invokeFunction = async function invokeFunction(id, payload, isAsync) {
-  const url = `${urlJoin(this.serviceUrl, 'v1', 'invoke', id)}${isAsync ? '?async=true' : ''}`;
+Client.prototype.invokeFunction = async function invokeFunction(
+  id,
+  payload,
+  isAsync,
+) {
+  const url = `${urlJoin(this.serviceUrl, 'v1', 'invoke', id)}${
+    isAsync ? '?async=true' : ''
+  }`;
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.post(url, payload, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          return resp.data;
-        }
-        case 202: {
-          return undefined;
-        }
-        default:
-          throw new VError({
+  return axios.post(url, payload, options).then((resp) => {
+    switch (resp.status) {
+      case 200: {
+        return resp.data;
+      }
+      case 202: {
+        return undefined;
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while invoking the function.');
-      }
-    });
+          'An error occurred while invoking the function.',
+        );
+    }
+  });
 };
 
 /**
@@ -175,30 +193,33 @@ Client.prototype.invokeFunction = async function invokeFunction(id, payload, isA
 Client.prototype.getFunctionDetails = async function getFunctionDetails(id) {
   const url = urlJoin(this.serviceUrl, 'v1', 'inspect', id);
 
-  const options = await utils.getRequestOptions({ authManager: this.authManager });
+  const options = await utils.getRequestOptions({
+    authManager: this.authManager,
+  });
 
-  return axios.get(url, options)
-    .then((resp) => {
-      switch (resp.status) {
-        case 200: {
-          return resp.data;
-        }
-        default:
-          throw new VError({
+  return axios.get(url, options).then((resp) => {
+    switch (resp.status) {
+      case 200: {
+        return resp.data;
+      }
+      default:
+        throw new VError(
+          {
             info: {
               status: resp.status,
               body: resp.data,
             },
           },
-          'An error occurred while fetching function details.');
-      }
-    });
+          'An error occurred while fetching function details.',
+        );
+    }
+  });
 };
 
-const getArchivePath = (sourcePathOrFile) => (sourcePathOrFile.endsWith('.zip')
-  ? Promise.resolve({ filePath: sourcePathOrFile, userSupplied: true })
-  : utils.createArchiveFromDirectory(sourcePathOrFile)
-);
+const getArchivePath = (sourcePathOrFile) =>
+  sourcePathOrFile.endsWith('.zip')
+    ? Promise.resolve({ filePath: sourcePathOrFile, userSupplied: true })
+    : utils.createArchiveFromDirectory(sourcePathOrFile);
 
 /**
  * @typedef {Object} UpdateFunctionResponse
@@ -228,14 +249,16 @@ Client.prototype.updateFunctionCode = function updateFunctionCode(
       form.append('runtime', runtime);
       form.append('entryPoint', entryPoint);
       return [pathMeta, form];
-    }).then(([pathMeta, form]) => {
+    })
+    .then(([pathMeta, form]) => {
       const url = urlJoin(this.serviceUrl, 'v1', 'uploadCode', id);
-      return utils.getRequestOptions({
-        authManager: this.authManager,
-        headers: {
-          ...form.getHeaders(),
-        },
-      })
+      return utils
+        .getRequestOptions({
+          authManager: this.authManager,
+          headers: {
+            ...form.getHeaders(),
+          },
+        })
         .then((options) => axios.post(url, form, options))
         .then((resp) => {
           if (!pathMeta.userSupplied && fs.existsSync(pathMeta.filePath)) {
@@ -247,13 +270,15 @@ Client.prototype.updateFunctionCode = function updateFunctionCode(
               return resp.data;
             }
             default:
-              throw new VError({
-                info: {
-                  status: resp.status,
-                  body: resp.data,
+              throw new VError(
+                {
+                  info: {
+                    status: resp.status,
+                    body: resp.data,
+                  },
                 },
-              },
-              'An error occurred while updating the function.');
+                'An error occurred while updating the function.',
+              );
           }
         });
     });
