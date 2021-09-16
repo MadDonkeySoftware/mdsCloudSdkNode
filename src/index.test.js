@@ -10,13 +10,13 @@ const index = proxyquire('./index', {
   }),
 });
 
-describe('index', () => {
+describe(__filename, () => {
   afterEach(() => {
     sinon.restore();
   });
 
   describe('initialize', () => {
-    it('with object provides clients configured urls', () => {
+    it('with object provides clients configured urls', async () => {
       // Arrange
       const qsUrl = 'http://127.0.0.1:80';
       const smUrl = 'http://127.0.0.1:81';
@@ -30,7 +30,7 @@ describe('index', () => {
       const allowSelfSignCert = true;
 
       // Act
-      index.initialize({
+      await index.initialize({
         qsUrl,
         smUrl,
         fsUrl,
@@ -44,12 +44,12 @@ describe('index', () => {
       });
 
       // Assert
-      const qsClient = index.getQueueServiceClient();
-      const smClient = index.getStateMachineServiceClient();
-      const fsClient = index.getFileServiceClient();
-      const nsClient = index.getNotificationServiceClient();
-      const sfClient = index.getServerlessFunctionsClient();
-      const identityClient = index.getIdentityServiceClient();
+      const qsClient = await index.getQueueServiceClient();
+      const smClient = await index.getStateMachineServiceClient();
+      const fsClient = await index.getFileServiceClient();
+      const nsClient = await index.getNotificationServiceClient();
+      const sfClient = await index.getServerlessFunctionsClient();
+      const identityClient = await index.getIdentityServiceClient();
 
       chai
         .expect(qsClient.serviceUrl)
@@ -80,7 +80,7 @@ describe('index', () => {
         );
     });
 
-    it('with string provides clients configured urls', () => {
+    it('with string provides clients configured urls', async () => {
       // Arrange
       const qsUrl = 'http://127.0.0.1:80';
       const smUrl = 'http://127.0.0.1:81';
@@ -107,15 +107,15 @@ describe('index', () => {
       });
 
       // Act
-      index.initialize('testEnv');
+      await index.initialize('testEnv');
 
       // Assert
-      const qsClient = index.getQueueServiceClient();
-      const smClient = index.getStateMachineServiceClient();
-      const fsClient = index.getFileServiceClient();
-      const nsClient = index.getNotificationServiceClient();
-      const sfClient = index.getServerlessFunctionsClient();
-      const identityClient = index.getIdentityServiceClient();
+      const qsClient = await index.getQueueServiceClient();
+      const smClient = await index.getStateMachineServiceClient();
+      const fsClient = await index.getFileServiceClient();
+      const nsClient = await index.getNotificationServiceClient();
+      const sfClient = await index.getServerlessFunctionsClient();
+      const identityClient = await index.getIdentityServiceClient();
 
       chai
         .expect(qsClient.serviceUrl)
@@ -146,7 +146,7 @@ describe('index', () => {
         );
     });
 
-    it('with undefined provides clients environment configured urls', () => {
+    it('with undefined provides clients environment configured urls', async () => {
       // Arrange
       const qsUrl = 'http://127.0.0.1:80';
       const smUrl = 'http://127.0.0.1:81';
@@ -174,15 +174,15 @@ describe('index', () => {
       });
 
       // Act
-      index.initialize();
+      await index.initialize();
 
       // Assert
-      const qsClient = index.getQueueServiceClient();
-      const smClient = index.getStateMachineServiceClient();
-      const fsClient = index.getFileServiceClient();
-      const nsClient = index.getNotificationServiceClient();
-      const sfClient = index.getServerlessFunctionsClient();
-      const identityClient = index.getIdentityServiceClient();
+      const qsClient = await index.getQueueServiceClient();
+      const smClient = await index.getStateMachineServiceClient();
+      const fsClient = await index.getFileServiceClient();
+      const nsClient = await index.getNotificationServiceClient();
+      const sfClient = await index.getServerlessFunctionsClient();
+      const identityClient = await index.getIdentityServiceClient();
 
       chai
         .expect(qsClient.serviceUrl)
@@ -214,10 +214,10 @@ describe('index', () => {
     });
   });
 
-  it('throws error when initialized with invalid parameter type', () => {
+  it('throws error when initialized with invalid parameter type', async () => {
     try {
       // Act
-      index.initialize(1);
+      await index.initialize(1);
       throw new Error('Test passed when it should not have.');
     } catch (err) {
       chai

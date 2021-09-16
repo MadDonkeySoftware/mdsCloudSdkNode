@@ -5,153 +5,219 @@ const path = require('path');
 const axios = require('axios');
 const archiver = require('archiver');
 const https = require('https');
+const util = require('util');
+const urlJoin = require('url-join');
+const { VError } = require('verror');
 
 const envFileName = 'selectedEnv';
 
-const inProcCache = {};
+const self = {
+  _fsExists: util.promisify(fs.exists),
 
-const settingDir = path.join(os.homedir(), '.mds');
+  _fsReadFile: util.promisify(fs.readFile),
 
-const DEFAULT_OPTIONS = {
-  headers: {
-    'Content-Type': 'application/json',
+  _DEFAULT_OPTIONS: {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    validateStatus: () => true, // Don't reject on any request
   },
-  validateStatus: () => true, // Don't reject on any request
-};
 
-// TODO: Figure out a way to implement this that doesn't cause issues with testing and coverage.
-/* istanbul ignore next */
-const getEnvConfig = (name) => {
-  try {
-    const cacheKey = `getEnvConfig-${name}`;
-    const cacheVal = inProcCache[cacheKey];
+  _SETTING_DIR: path.join(os.homedir(), '.mds'),
+
+  _IN_PROC_CACHE: {},
+
+  /**
+   * Gets the configuration for the specified environment
+   * @param {string} name The environment configuration to load
+   * @returns {Promise<object>}
+   */
+  getEnvConfig: async (name) => {
+    if (!name) return null;
+
+    try {
+      const cacheKey = `getEnvConfig-${name}`;
+      const cacheVal = self._IN_PROC_CACHE[cacheKey];
+      if (cacheVal) {
+        return cacheVal;
+      }
+
+      const file = path.join(self._SETTING_DIR, `${name}.json`);
+      const fileExists = await self._fsExists(file);
+      if (fileExists) {
+        const body = await self._fsReadFile(file);
+        self._IN_PROC_CACHE[cacheKey] = JSON.parse(body);
+        return self._IN_PROC_CACHE[cacheKey];
+      }
+    } catch (err) /* istanbul ignore next */ {
+      if (process.env.NODE_ENV !== 'test') {
+        process.stdout.write(
+          `Attempting to load configuration ${name} from ${self._SETTING_DIR} failed.${os.EOL}`,
+        );
+        process.stderr.write(`${err}`);
+      }
+    }
+    return null;
+  },
+
+  /**
+   * Gets the configured default environment name for the system.
+   * @returns {Promise<string>}
+   */
+  getDefaultEnv: async () => {
+    const cacheKey = 'getDefaultEnv';
+    const cacheVal = self._IN_PROC_CACHE[cacheKey];
     if (cacheVal) {
       return cacheVal;
     }
 
-    const file = path.join(settingDir, `${name}.json`);
-    if (name && fs.existsSync(file)) {
-      const body = fs.readFileSync(file);
-      inProcCache[cacheKey] = JSON.parse(body);
-      return inProcCache[cacheKey];
+    const file = path.join(self._SETTING_DIR, envFileName);
+    if (await self._fsExists(file)) {
+      const data = await self._fsReadFile(file);
+      if (data) {
+        // Trim just in case the file was edited by the user.
+        self._IN_PROC_CACHE[cacheKey] = data.toString().trim();
+        return self._IN_PROC_CACHE[cacheKey];
+      }
     }
-  } catch (err) {
-    process.stdout.write(
-      `Attempting to load configuration ${name} from ${settingDir} failed.${os.EOL}`,
-    );
-    process.stderr.write(`${err}`);
-  }
-  return null;
-};
 
-// TODO: Figure out a way to implement this that doesn't cause issues with testing and coverage.
-/* istanbul ignore next */
-const getDefaultEnv = () => {
-  const cacheKey = 'getDefaultEnv';
-  const cacheVal = inProcCache[cacheKey];
-  if (cacheVal) {
-    return cacheVal;
-  }
+    return 'default';
+  },
 
-  const file = path.join(settingDir, envFileName);
-  if (fs.existsSync(file)) {
-    const data = fs.readFileSync(file);
-    if (data) {
-      // Trim just in case the file was edited by the user.
-      inProcCache[cacheKey] = data.toString().trim();
-      return inProcCache[cacheKey];
-    }
-  }
+  /**
+   *
+   * @param {Object} obj Object to capture overridable portions of the request options
+   * @param {String} [obj.envName] Environment to act against
+   * @param {Object} [obj.headers] Object to capture various request headers and value
+   * @param {Object} [obj.authManager] TODO
+   * @param {Object} [obj.allowSelfSignCert] Allows communication with services using self signed certs
+   */
+  getRequestOptions: async ({
+    envName,
+    headers,
+    authManager,
+    allowSelfSignCert,
+  } = {}) => {
+    const preBaked = { headers: {} };
 
-  return 'default';
-};
-
-/**
- *
- * @param {Object} obj Object to capture overridable portions of the request options
- * @param {String} [obj.envName] Environment to act against
- * @param {Object} [obj.headers] Object to capture various request headers and value
- * @param {Object} [obj.authManager] TODO
- * @param {Object} [obj.allowSelfSignCert] Allows communication with services using self signed certs
- */
-const getRequestOptions = async ({
-  envName,
-  headers,
-  authManager,
-  allowSelfSignCert,
-} = {}) => {
-  const preBaked = { headers: {} };
-
-  if (authManager) {
-    let token;
-    if (envName) {
-      const conf = module.exports.getEnvConfig(envName);
-      token = await authManager.getAuthenticationToken({
-        accountId: conf.account,
-        userId: conf.userId,
-        password: conf.password,
-      });
-    } else {
-      token = await authManager.getAuthenticationToken();
-    }
-    preBaked.headers.Token = token;
-  }
-
-  if (allowSelfSignCert) {
-    preBaked.httpsAgent = new https.Agent({
-      rejectUnauthorized: false,
-    });
-  }
-
-  return _.merge({}, DEFAULT_OPTIONS, preBaked, { headers });
-};
-
-const download = (url, destination, authManager) => {
-  const parts = url.split('/');
-  const fullDestination = path.join(destination, parts[parts.length - 1]);
-  const writer = fs.createWriteStream(fullDestination);
-
-  return module.exports
-    .getRequestOptions({
-      authManager,
-    })
-    .then((options) =>
-      axios.get(url, { responseType: 'stream', ...options }).then((resp) => {
-        resp.data.pipe(writer);
-        return new Promise((resolve, reject) => {
-          writer.on('finish', resolve);
-          writer.on('error', reject);
+    if (authManager) {
+      let token;
+      if (envName) {
+        const conf = module.exports.getEnvConfig(envName);
+        token = await authManager.getAuthenticationToken({
+          accountId: conf.account,
+          userId: conf.userId,
+          password: conf.password,
         });
-      }),
-    );
-};
+      } else {
+        token = await authManager.getAuthenticationToken();
+      }
+      preBaked.headers.Token = token;
+    }
 
-const createArchiveFromDirectory = (folderPath) =>
-  new Promise((resolve, reject) => {
-    const pathParts = folderPath.split(`${path.sep}`);
-    const tempFilePath = `${os.tmpdir()}${path.sep}${
-      pathParts[pathParts.length - 1]
-    }.zip`;
-    const outputFile = fs.createWriteStream(tempFilePath);
+    if (allowSelfSignCert) {
+      preBaked.httpsAgent = new https.Agent({
+        rejectUnauthorized: false,
+      });
+    }
 
-    const archive = archiver('zip');
-    outputFile.on('close', () => {
-      resolve({ filePath: tempFilePath, userSupplied: false });
+    return _.merge({}, self._DEFAULT_OPTIONS, preBaked, { headers });
+  },
+
+  download: async (url, destination, authManager) => {
+    const parts = url.split('/');
+    const fullDestination = path.join(destination, parts[parts.length - 1]);
+    const writer = fs.createWriteStream(fullDestination);
+
+    const options = await self.getRequestOptions({ authManager });
+    const resp = await axios.get(url, { responseType: 'stream', ...options });
+    resp.data.pipe(writer);
+    return new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+  },
+
+  createArchiveFromDirectory: (folderPath) =>
+    new Promise((resolve, reject) => {
+      const pathParts = folderPath.split(`${path.sep}`);
+      const tempFilePath = `${os.tmpdir()}${path.sep}${
+        pathParts[pathParts.length - 1]
+      }.zip`;
+      const outputFile = fs.createWriteStream(tempFilePath);
+
+      const archive = archiver('zip');
+      outputFile.on('close', () => {
+        resolve({ filePath: tempFilePath, userSupplied: false });
+      });
+
+      outputFile.on('error', (err) => {
+        reject(err);
+      });
+
+      archive.pipe(outputFile);
+      archive.directory(folderPath, false);
+      archive.finalize();
+    }),
+
+  /**
+   * @typedef {Object} GetConfigurationResult
+   * @property {string} [identityUrl] The url of the identity service
+   * @property {string} [nsUrl] The url of the notification service
+   * @property {string} [qsUrl] The url of the queue service
+   * @property {string} [fsUrl] The url of the file service
+   * @property {string} [sfUrl] The url of the serverless functions service
+   * @property {string} [smUrl] The url of the state machine service
+   * @property {bool} [allowSelfSignCert] True to allow consumption of self signed SSL certs; False to deny.
+   */
+
+  /**
+   * Gets the auto-configurable URLs for the mdsCloud system.
+   * @param {string} identityUrl The url of the identity service
+   * @param {boolean} [allowSelfSignCert] True to allow consumption of self signed SSL certs; False to deny.
+   * @returns {Promise<GetConfigurationResult|VError>}
+   */
+  getConfigurationUrls: async function getConfigurationUrls(
+    identityUrl,
+    allowSelfSignCert = true,
+  ) {
+    if (!identityUrl) return {};
+
+    const url = urlJoin(identityUrl, 'v1', 'configuration');
+
+    const options = await self.getRequestOptions({
+      allowSelfSignCert,
     });
 
-    outputFile.on('error', (err) => {
-      reject(err);
-    });
-
-    archive.pipe(outputFile);
-    archive.directory(folderPath, false);
-    archive.finalize();
-  });
-
-module.exports = {
-  getEnvConfig,
-  getDefaultEnv,
-  getRequestOptions,
-  download,
-  createArchiveFromDirectory,
+    try {
+      const resp = await axios.get(url, options);
+      switch (resp.status) {
+        case 200:
+          return { ...resp.data };
+        default:
+          throw new VError(
+            {
+              info: {
+                status: resp.status,
+                body: resp.data,
+              },
+            },
+            'An error occurred while acquiring the configuration.',
+          );
+      }
+    } catch (err) {
+      /* istanbul ignore if */
+      if (process.env.NODE_ENV !== 'test') {
+        process.stdout.write('=====\n');
+        process.stdout.write(
+          'WARNING: Encountered error while fetching configuration URLs\n',
+        );
+        process.stdout.write(`${err.stack}\n`);
+        process.stdout.write('=====\n');
+      }
+      return {};
+    }
+  },
 };
+
+module.exports = self;

@@ -122,7 +122,7 @@ Client.prototype.updateUser = async function updateUser(meta) {
 /**
  * Gets the public signature all tokens are signed with by the identity endpoint
  */
-Client.prototype.getPublicSignature = async function updateUser() {
+Client.prototype.getPublicSignature = async function getPublicSignature() {
   const url = urlJoin(this.serviceUrl, 'v1', 'publicSignature');
 
   const options = await utils.getRequestOptions({
