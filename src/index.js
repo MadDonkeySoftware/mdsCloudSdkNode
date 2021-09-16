@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const utils = require('./lib/utils');
 const AuthManager = require('./lib/auth-manager');
 const DiscCache = require('./lib/disc-cache');
@@ -11,16 +12,21 @@ const IdentityService = require('./identity-service');
 let SINGLETON;
 let AUTH_MANAGER;
 
-const getUrls = (environment) => {
-  const env = environment || utils.getDefaultEnv();
-  return utils.getEnvConfig(env);
+/**
+ * Gets the configuration for the default or specified environment
+ * @param {string} [environment] The environment to get configuration urls from
+ * @returns {Promise<object>}
+ */
+const getUrls = async (environment) => {
+  const env = environment || (await utils.getDefaultEnv());
+  return (await utils.getEnvConfig(env)) || {};
 };
 
 // TODO: Expand to take overridable values
-const getAuthManager = (environment) => {
+const getAuthManager = async (environment) => {
   /* istanbul ignore if */
   if (!AUTH_MANAGER) {
-    const urls = getUrls(environment);
+    const urls = await getUrls(environment);
     AUTH_MANAGER = new AuthManager(new DiscCache(), urls.identityUrl);
   }
   return AUTH_MANAGER;
@@ -65,6 +71,10 @@ function Sdk({
   this.allowSelfSignCert = allowSelfSignCert;
 }
 
+Sdk.prototype.getSettings = function getSettings() {
+  return _.mapValues(this, (v) => v);
+};
+
 /**
  * Initializes the global set of service endpoints clients will use.
  *
@@ -80,74 +90,73 @@ function Sdk({
  * @param {string} [data.password] The password to use during authentication.
  * @param {string} [data.allowSelfSignCert] Allow self signed certificates when communicating with identity.
  */
-const initialize = (data) => {
+const initialize = async (data) => {
   AUTH_MANAGER = null;
+  const oldConfig = SINGLETON ? SINGLETON.getSettings() : {};
+  let configData = {};
+
   if (typeof data === 'object') {
-    SINGLETON = new Sdk(data);
-    AUTH_MANAGER = new AuthManager({
-      cache: new DiscCache(),
-      identityUrl: data.identityUrl,
-      userId: data.userId,
-      password: data.password,
-      account: data.account,
-      allowSelfSignCert: data.allowSelfSignCert,
-    });
-  } else if (typeof data === 'string' || data === undefined) {
-    const envData = getUrls(data);
-    SINGLETON = new Sdk(envData);
-    AUTH_MANAGER = new AuthManager({
-      cache: new DiscCache(),
-      identityUrl: envData.identityUrl,
-      userId: envData.userId,
-      password: envData.password,
-      account: envData.account,
-      allowSelfSignCert: envData.allowSelfSignCert,
-    });
+    const autoConfig = await utils.getConfigurationUrls(data.identityUrl);
+    configData = _.merge({}, oldConfig, autoConfig, data);
+  } else if (typeof data === 'string' || data === undefined || data === null) {
+    const envData = await getUrls(data);
+    const autoConfig = await utils.getConfigurationUrls(envData.identityUrl);
+    configData = _.merge({}, oldConfig, autoConfig, envData);
   } else {
     throw new Error(
       `Initialization of MDS SDK failed. Type '${typeof data}' not supported.`,
     );
   }
+
+  SINGLETON = new Sdk(configData);
+  AUTH_MANAGER = new AuthManager({
+    cache: new DiscCache(),
+    identityUrl: configData.identityUrl,
+    userId: configData.userId,
+    password: configData.password,
+    account: configData.account,
+    allowSelfSignCert: configData.allowSelfSignCert,
+  });
 };
 
 /**
  * Creates a new file service client
  */
-const getFileServiceClient = () =>
-  new FileService(SINGLETON.fsUrl, getAuthManager());
+const getFileServiceClient = async () =>
+  new FileService(SINGLETON.fsUrl, await getAuthManager());
 
 /**
  * Creates a new queue service client
  */
-const getQueueServiceClient = () =>
-  new QueueService(SINGLETON.qsUrl, getAuthManager());
+const getQueueServiceClient = async () =>
+  new QueueService(SINGLETON.qsUrl, await getAuthManager());
 
 /**
  * Creates a new state machine client
  * @param {String} [smUrl] Override for the state machine service endpoint.
  */
-const getStateMachineServiceClient = () =>
-  new StateMachineService(SINGLETON.smUrl, getAuthManager());
+const getStateMachineServiceClient = async () =>
+  new StateMachineService(SINGLETON.smUrl, await getAuthManager());
 
 /**
  * Creates a new notification service client
  */
-const getNotificationServiceClient = () =>
-  new NotificationService(SINGLETON.nsUrl, getAuthManager());
+const getNotificationServiceClient = async () =>
+  new NotificationService(SINGLETON.nsUrl, await getAuthManager());
 
 /**
  * Creates a new serverless function client
  */
-const getServerlessFunctionsClient = () =>
-  new ServerlessFunctions(SINGLETON.sfUrl, getAuthManager());
+const getServerlessFunctionsClient = async () =>
+  new ServerlessFunctions(SINGLETON.sfUrl, await getAuthManager());
 
 /**
  * Creates a new identity client
  */
-const getIdentityServiceClient = () =>
+const getIdentityServiceClient = async () =>
   new IdentityService(
     SINGLETON.identityUrl,
-    getAuthManager(),
+    await getAuthManager(),
     SINGLETON.allowSelfSignCert,
   );
 

@@ -348,6 +348,37 @@ describe('serverless-functions', () => {
             chai.expect(unlinkSyncCalls[0].args[0]).to.be.equal('/tmp/foo.zip');
           });
       });
+
+      it('when user provided zip file with context', () => {
+        // Arrange
+        const postStub = this.sandbox.stub(axios, 'post');
+        postStub.returns(
+          Promise.resolve({
+            status: 201,
+            data: { foo: 'bar' },
+          }),
+        );
+        const client = new ServerlessFunctions('http://127.0.0.1:8080');
+
+        // Act
+        return client
+          .updateFunctionCode(
+            'test',
+            'node',
+            'foo/bar:main',
+            '/tmp/foo.zip',
+            'someContext',
+          )
+          .then((data) => {
+            // Assert
+            const getCalls = postStub.getCalls();
+            chai.expect(getCalls.length).to.be.equal(1);
+            chai
+              .expect(getCalls[0].args[0])
+              .to.be.equal('http://127.0.0.1:8080/v1/uploadCode/test');
+            chai.expect(data).to.deep.eql({ foo: 'bar' });
+          });
+      });
     });
 
     it('returns a rejected promise when an unknown error occurs', () => {

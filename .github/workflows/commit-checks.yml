@@ -3,7 +3,7 @@ on:
   push:
     branches: [ master, main ]
   pull_request:
-    branches: [ master, main]
+    branches: [ master, main ]
 jobs:
   Pull-Request-Checks:
     runs-on: ubuntu-latest
@@ -15,6 +15,6 @@ jobs:
         with:
           node-version: '14.x'
       - run: npm ci
-      - run: npm run test-cov
+      - run: npm run test-cov --if-present
       - run: npm run lint
       - run: npm run pretty-check --if-present
