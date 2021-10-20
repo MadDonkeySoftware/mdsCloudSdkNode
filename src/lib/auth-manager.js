@@ -82,14 +82,19 @@ AuthManager.prototype.getAuthenticationToken =
     const cacheKey = `${this.identityUrl}|${account}|${user}`;
     const existingToken = this.cache.get(cacheKey);
     if (existingToken) {
+      utils.verboseWrite('AuthManager: Existing token found');
       const payload = jwt.decode(existingToken);
 
       // TODO: Validate token
       // NOTE: Add a 60 second buffer to ensure calls will succeed.
       const nowSec = Math.floor(new Date().getTime() / 1000.0) + 60;
       if (payload && payload.exp && nowSec < payload.exp) {
+        utils.verboseWrite('AuthManager: Existing token deemed valid.');
         return existingToken;
       }
+      utils.verboseWrite(
+        'AuthManager: Existing token invalid. Removing from cache.',
+      );
       this.cache.remove(cacheKey);
     }
 
@@ -100,8 +105,21 @@ AuthManager.prototype.getAuthenticationToken =
       password,
       allowSelfSignCert: this.allowSelfSignCert,
     });
-    this.cache.set(cacheKey, token);
+    await this.setAuthenticationToken({
+      token,
+    });
     return token;
+  };
+
+AuthManager.prototype.setAuthenticationToken =
+  async function setAuthenticationToken({ token }) {
+    const payload = jwt.decode(token);
+    const { accountId, userId } = payload;
+    // We "seed" these for when the mds sdk is configured via the docker minion
+    this.account = accountId;
+    this.userId = userId;
+    const cacheKey = `${this.identityUrl}|${accountId}|${userId}`;
+    this.cache.set(cacheKey, token);
   };
 
 module.exports = AuthManager;

@@ -89,11 +89,18 @@ Sdk.prototype.getSettings = function getSettings() {
  * @param {string} [data.userId] The userId to use during authentication.
  * @param {string} [data.password] The password to use during authentication.
  * @param {string} [data.allowSelfSignCert] Allow self signed certificates when communicating with identity.
+ * @param {string} [data.token] If identityUrl and token are available via params or the system cache, pre-seeds the auth manager with the token.
+ * @param {boolean} [data.verboseEnable] When set to true will send additional debugging info to stdout
  */
 const initialize = async (data) => {
   AUTH_MANAGER = null;
   const oldConfig = SINGLETON ? SINGLETON.getSettings() : {};
   let configData = {};
+
+  /* istanbul ignore if */
+  if (data && data.verboseEnable) {
+    utils._verboseEnabled = !!data.verboseEnable;
+  }
 
   if (typeof data === 'object') {
     const autoConfig = await utils.getConfigurationUrls(data.identityUrl);
@@ -108,6 +115,9 @@ const initialize = async (data) => {
     );
   }
 
+  utils.verboseWrite('Config Data:');
+  utils.verboseWrite(JSON.stringify(_.omit(configData, ['password']), null, 2));
+
   SINGLETON = new Sdk(configData);
   AUTH_MANAGER = new AuthManager({
     cache: new DiscCache(),
@@ -117,6 +127,14 @@ const initialize = async (data) => {
     account: configData.account,
     allowSelfSignCert: configData.allowSelfSignCert,
   });
+
+  // TODO: Restructure so that auth manager can be stubbed for tests
+  /* istanbul ignore if */
+  if (configData.token) {
+    await AUTH_MANAGER.setAuthenticationToken({
+      token: configData.token,
+    });
+  }
 };
 
 /**

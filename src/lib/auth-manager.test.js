@@ -39,6 +39,8 @@ describe('auth-manager', () => {
       });
 
       sinon.stub(jwt, 'decode').returns({
+        accountId: 'testAccount',
+        userId: 'testUser',
         exp: Math.floor(new Date().getTime() / 1000.0) + 300,
       });
 
@@ -59,7 +61,13 @@ describe('auth-manager', () => {
 
     it('Expired cache key removed on subsequent calls', async () => {
       // Arrange
-      const expectedToken = 'AwesomeTestToken';
+      const expectedToken = jwt.sign(
+        {
+          accountId: 'testAccount',
+          userId: 'testUser',
+        },
+        'testKey',
+      );
       const cache = {
         get: sinon.stub().returns({
           exp: Math.floor(new Date().getTime() / 1000.0) - 300,

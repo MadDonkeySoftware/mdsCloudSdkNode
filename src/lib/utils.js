@@ -12,6 +12,8 @@ const { VError } = require('verror');
 const envFileName = 'selectedEnv';
 
 const self = {
+  _verboseEnabled: false,
+
   _fsExists: util.promisify(fs.exists),
 
   _fsReadFile: util.promisify(fs.readFile),
@@ -50,12 +52,10 @@ const self = {
         return self._IN_PROC_CACHE[cacheKey];
       }
     } catch (err) /* istanbul ignore next */ {
-      if (process.env.NODE_ENV !== 'test') {
-        process.stdout.write(
-          `Attempting to load configuration ${name} from ${self._SETTING_DIR} failed.${os.EOL}`,
-        );
-        process.stderr.write(`${err}`);
-      }
+      self.verboseWrite(
+        `Attempting to load configuration ${name} from ${self._SETTING_DIR} failed.`,
+      );
+      self.verboseWrite(err);
     }
     return null;
   },
@@ -208,14 +208,20 @@ const self = {
     } catch (err) {
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'test') {
-        process.stdout.write('=====\n');
-        process.stdout.write(
-          'WARNING: Encountered error while fetching configuration URLs\n',
+        self.verboseWrite('=====');
+        self.verboseWrite(
+          'WARNING: Encountered error while fetching configuration URLs',
         );
-        process.stdout.write(`${err.stack}\n`);
-        process.stdout.write('=====\n');
+        self.verboseWrite(err.stack);
+        self.verboseWrite('=====');
       }
       return {};
+    }
+  },
+
+  verboseWrite: (message) => {
+    if (self._verboseEnabled) {
+      process.stdout.write(`${message}${os.EOL}`);
     }
   },
 };

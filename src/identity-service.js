@@ -148,11 +148,16 @@ Client.prototype.getPublicSignature = async function getPublicSignature() {
 };
 
 /**
+ * @typedef {Object} ImpersonateResult
+ * @property {String} token the impersonation token of the current user
+ */
+
+/**
  * Get impersonation token for a user on a given account
  * @param {object} meta The authentication credentials
  * @param {string} meta.accountId The account to impersonate a user under
  * @param {string} [meta.userId] If provided the specific user to impersonate, else the root user.
- * @returns {Promise<String>|VError}
+ * @returns {Promise<ImpersonateResult>|VError}
  */
 Client.prototype.impersonateUser = async function impersonateUser(meta) {
   const url = urlJoin(this.serviceUrl, 'v1', 'impersonate');
