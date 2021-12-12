@@ -78,6 +78,8 @@ Sdk.prototype.getSettings = function getSettings() {
 /**
  * Initializes the global set of service endpoints clients will use.
  *
+ * NOTE: Having the environment variable MDS_SDK_VERBOSE set will cause extra logging to be emit.
+ *
  * @param {object|string} [data] Object containing service endpoint urls. String to specify environment configure or undefined to use the configured default settings.
  * @param {string} [data.qsUrl] The queue service url.
  * @param {string} [data.smUrl] The state machine service url.
@@ -90,7 +92,6 @@ Sdk.prototype.getSettings = function getSettings() {
  * @param {string} [data.password] The password to use during authentication.
  * @param {string} [data.allowSelfSignCert] Allow self signed certificates when communicating with identity.
  * @param {string} [data.token] If identityUrl and token are available via params or the system cache, pre-seeds the auth manager with the token.
- * @param {boolean} [data.verboseEnable] When set to true will send additional debugging info to stdout
  */
 const initialize = async (data) => {
   AUTH_MANAGER = null;
@@ -98,8 +99,8 @@ const initialize = async (data) => {
   let configData = {};
 
   /* istanbul ignore if */
-  if (data && data.verboseEnable) {
-    utils._verboseEnabled = !!data.verboseEnable;
+  if (process.env.MDS_SDK_VERBOSE) {
+    utils._verboseEnabled = true;
   }
 
   if (typeof data === 'object') {
