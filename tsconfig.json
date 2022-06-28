@@ -1,0 +1,22 @@
+{
+  // https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html
+  "ts-node": {
+    "files": true,
+  },
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "target": "ES2015",
+    "declaration": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "esModuleInterop": true, // for url-join
+    "noImplicitAny": true,
+    // "sourceMap": true,
+
+    // Disable later
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [ "./src/**/*" ]
+}
