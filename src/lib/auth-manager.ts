@@ -1,9 +1,8 @@
-import urlJoin from 'url-join';
 import { VError } from 'verror';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import https from 'https';
-import { getRequestOptions, verboseWrite } from './utils';
+import { getRequestOptions, verboseWrite, urlJoin } from './utils';
 import { IdentityJwtPayload } from '../types';
 import { Cache } from '../types';
 

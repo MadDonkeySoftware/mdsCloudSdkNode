@@ -6,7 +6,11 @@ import * as utils from '../../lib/utils';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-jest.mock('../../lib/utils');
+jest.mock('../../lib/utils', () => ({
+  urlJoin: jest.requireActual('../../lib/utils').urlJoin,
+  getRequestOptions: jest.fn(),
+  download: jest.fn(),
+}));
 const mockUtils = utils as jest.Mocked<typeof utils>;
 
 const fakeAuthManager = {

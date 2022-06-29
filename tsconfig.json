@@ -10,9 +10,9 @@
     "declaration": true,
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "esModuleInterop": true, // for url-join
     "noImplicitAny": true,
-    // "sourceMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true, // for FormData
 
     // Disable later
     "skipLibCheck": true,

@@ -7,7 +7,10 @@ import {
 jest.mock('axios');
 const mockAxios = axios as jest.Mocked<typeof axios>;
 
-jest.mock('../../lib/utils');
+jest.mock('../../lib/utils', () => ({
+  ...jest.requireActual('../../lib/utils'),
+  getRequestOptions: jest.fn(),
+}));
 
 describe('state-machine-service', () => {
   afterEach(() => {

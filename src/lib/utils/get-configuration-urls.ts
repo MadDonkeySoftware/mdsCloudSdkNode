@@ -1,8 +1,8 @@
 import axios from 'axios';
-import urlJoin from 'url-join';
 import { VError } from 'verror';
 import { EnvironmentUrls } from '../../types/environment-urls';
 import { getRequestOptions } from './get-request-options';
+import { urlJoin } from './url-join';
 import { verboseWrite } from './verbose-write';
 
 /**
