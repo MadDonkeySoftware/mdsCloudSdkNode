@@ -1,9 +1,8 @@
 import axios from 'axios';
-import urlJoin from 'url-join';
 import { VError } from 'verror';
 import { merge } from 'lodash';
 import { AuthManager } from '../lib';
-import { getRequestOptions } from '../lib/utils';
+import { getRequestOptions, urlJoin } from '../lib/utils';
 
 export interface CreateQueueOptions {
   /**

@@ -14,7 +14,11 @@ jest.mock('fs', () => ({
 }));
 const mockFs = fs as jest.Mocked<typeof fs>;
 
-jest.mock('../../lib/utils');
+jest.mock('../../lib/utils', () => ({
+  ...jest.requireActual('../../lib/utils'),
+  getRequestOptions: jest.fn(),
+  createArchiveFromDirectory: jest.fn(),
+}));
 const mockUtils = utils as jest.Mocked<typeof utils>;
 
 describe(__filename, () => {

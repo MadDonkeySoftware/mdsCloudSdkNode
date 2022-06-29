@@ -1,10 +1,13 @@
 import axios from 'axios';
-import urlJoin from 'url-join';
 import FormData from 'form-data';
 import { createReadStream, existsSync, unlinkSync } from 'fs';
 import { VError } from 'verror';
 import { AuthManager } from '../lib';
-import { getRequestOptions, createArchiveFromDirectory } from '../lib/utils';
+import {
+  getRequestOptions,
+  createArchiveFromDirectory,
+  urlJoin,
+} from '../lib/utils';
 
 export interface CreateFunctionResult {
   /**

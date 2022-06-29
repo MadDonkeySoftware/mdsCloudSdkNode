@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { Socket } from 'socket.io-client';
-import urlJoin from 'url-join';
 import { VError } from 'verror';
 import { AuthManager } from '../lib';
-import { getRequestOptions } from '../lib/utils';
+import { getRequestOptions, urlJoin } from '../lib/utils';
 import { getSocketClient } from '../wrappers';
 
 export type OnCallback = (...args: unknown[]) => void;

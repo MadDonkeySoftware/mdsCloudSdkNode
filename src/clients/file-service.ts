@@ -1,10 +1,9 @@
 import axios from 'axios';
 import FormData from 'form-data';
-import urlJoin from 'url-join';
 import { VError } from 'verror';
 import { createReadStream } from 'fs';
 import { AuthManager } from '../lib/auth-manager';
-import { download, getRequestOptions } from '../lib/utils';
+import { download, getRequestOptions, urlJoin } from '../lib/utils';
 import { DirectoryContents } from '../types';
 
 export class FileServiceClient {
