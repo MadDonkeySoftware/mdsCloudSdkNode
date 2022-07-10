@@ -16,8 +16,9 @@
     "pretty": "prettier -w ./src",
     "format": "npm run pretty",
     "prebuild": "npm run clean",
-    "prepublish:setup": "npm run clean && npm run build && node dist/setup-package.js",
-    "publish:setup": "echo 'ready to publish from dist folder!'"
+    "prepublish:setup": "npm run clean && npm run build && node dist/setup-package.js && rimraf ./dist/setup-package.js ./dist/setup-package.d.ts",
+    "publish:setup": "./scripts/build/npm-version-check && echo 'ready to publish from dist folder!'",
+    "publish:watch": "nodemon -w src -e 'ts' --exec 'npm run publish:setup'"
   },
   "repository": {
     "type": "git",
@@ -56,6 +57,7 @@
     "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-prettier": "^4.1.0",
     "jest": "^28.1.1",
+    "nodemon": "^2.0.20",
     "prettier": "2.7.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^28.0.5",

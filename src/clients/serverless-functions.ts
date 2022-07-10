@@ -8,94 +8,12 @@ import {
   createArchiveFromDirectory,
   urlJoin,
 } from '../lib/utils';
-
-export interface CreateFunctionResult {
-  /**
-   * The identifier of the newly created function
-   */
-  id: string;
-
-  /**
-   * The status of the entity
-   */
-  status: string;
-}
-
-export interface FunctionListItem {
-  /**
-   * The id of the serverless function
-   */
-  id: string;
-
-  /**
-   * The friendly name of the serverless function
-   */
-  name: string;
-}
-
-export interface DeleteFunctionResult {
-  /**
-   * The identifier of the function
-   */
-  id: string;
-  /**
-   * The status of the entity
-   */
-  status: string;
-}
-
-export interface FunctionDetails {
-  /**
-   * The id of the function
-   */
-  id: string;
-
-  /**
-   * The friendly name of the function
-   */
-  name: string;
-  /**
-   * The current version of the function
-   */
-  version: string;
-  /**
-   * THe current runtime specified for the function
-   */
-  runtime: string;
-  /**
-   * The specified entry point for the current version of the function
-   */
-  entryPoint: string;
-  /**
-   * ISO formatted timestamp for when this function was created
-   */
-  created: string;
-  /**
-   * ISO formatted timestamp for when this function was last updated
-   */
-  lastUpdate: string;
-  /**
-   * ISO formatted timestamp for when this function was last invoked
-   */
-  lastInvoke: string;
-}
-
-export interface UpdateFunctionResult {
-  /**
-   * The id of the function
-   */
-  id: string;
-
-  /**
-   * The build status for the function
-   */
-  status: string;
-
-  /**
-   * The url used to invoke this function
-   */
-  invokeUrl?: string;
-}
+import {
+  CreateFunctionResult,
+  FunctionDetails,
+  FunctionListItem,
+  UpdateFunctionResult,
+} from '../types/serverless-functions-service';
 
 const getArchivePath = (sourcePathOrFile: string) =>
   sourcePathOrFile.endsWith('.zip')
@@ -135,8 +53,7 @@ export class ServerlessFunctionsClient {
     const resp = await axios.post(url, { name }, options);
     switch (resp.status) {
       case 201: {
-        const parsedBody = resp.data;
-        return { status: 'created', id: parsedBody.orid || parsedBody.id };
+        return { status: 'created', ...resp.data };
       }
       default:
         throw new VError(
@@ -183,7 +100,7 @@ export class ServerlessFunctionsClient {
    * Deletes a serverless function
    * @param id The id of the state machine
    */
-  async deleteFunction(id: string): Promise<DeleteFunctionResult> {
+  async deleteFunction(id: string): Promise<void> {
     const url = urlJoin(this.serviceUrl, 'v1', id);
 
     const options = await getRequestOptions({
@@ -193,7 +110,7 @@ export class ServerlessFunctionsClient {
     const resp = await axios.delete(url, options);
     switch (resp.status) {
       case 204: {
-        return { status: 'deleted', id };
+        return;
       }
       default:
         throw new VError(
@@ -210,9 +127,9 @@ export class ServerlessFunctionsClient {
 
   /**
    * Invoke a function
-   * @param  id The identifier of the function to invoke
-   * @param  payload The input supplied to the function. Suggested practice is to use an object.
-   * @param  isAsync True to invoke the function and not wait for the result.
+   * @param id The identifier of the function to invoke
+   * @param payload The input supplied to the function. Suggested practice is to use an object.
+   * @param isAsync True to invoke the function and not wait for the result.
    */
   async invokeFunction(
     id: string,
@@ -279,12 +196,11 @@ export class ServerlessFunctionsClient {
 
   /**
    * Updates the code of a function on the serverless function provider
-   * @param {String} id The identifier of the function to update
-   * @param {String} runtime The runtime to utilize for the function
-   * @param {String} entryPoint The entry point to use for the function
-   * @param {String} sourcePathOrFile A path to the source directory or a zip file to upload
-   * @param {String} [context] A string containing whatever context data this function should run with
-   * @returns {Promise<UpdateFunctionResponse|VError>}
+   * @param id The identifier of the function to update
+   * @param runtime The runtime to utilize for the function
+   * @param entryPoint The entry point to use for the function
+   * @param sourcePathOrFile A path to the source directory or a zip file to upload
+   * @param context A string containing whatever context data this function should run with
    */
   async updateFunctionCode(
     id: string,
