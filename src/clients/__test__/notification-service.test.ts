@@ -14,6 +14,7 @@ const mockAxios = axios as jest.Mocked<typeof axios>;
 
 describe(__filename, () => {
   afterEach(() => {
+    jest.clearAllMocks();
     jest.resetAllMocks();
   });
 
@@ -36,7 +37,7 @@ describe(__filename, () => {
         // Act
         return client.emit('test-topic', 'some message').then(() => {
           // assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/emit/test-topic',
           );
@@ -57,7 +58,7 @@ describe(__filename, () => {
         const msg = { f1: 'v1', f2: 'v2' };
         return client.emit('test-topic', msg).then(() => {
           // assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/emit/test-topic',
           );
@@ -115,7 +116,7 @@ describe(__filename, () => {
           ),
         )
         .then(() => {
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/emit/test-topic',
           );
@@ -138,7 +139,7 @@ describe(__filename, () => {
       client.on('topic', handler);
 
       // Assert
-      expect(socketStub.on).toBeCalledTimes(1);
+      expect(socketStub.on).toHaveBeenCalledTimes(1);
       const onCalls = socketStub.on.mock.calls;
       expect(onCalls[0][0]).toBe('topic');
       expect(onCalls[0][1]).toBe(handler);
@@ -159,7 +160,7 @@ describe(__filename, () => {
       client.off('topic', handler);
 
       // Assert
-      expect(socketStub.off).toBeCalledTimes(1);
+      expect(socketStub.off).toHaveBeenCalledTimes(1);
       const offCalls = socketStub.off.mock.calls;
       expect(offCalls[0][0]).toBe('topic');
       expect(offCalls[0][1]).toBe(handler);
@@ -178,7 +179,7 @@ describe(__filename, () => {
       client.close();
 
       // Assert
-      expect(socketStub.disconnect).toBeCalledTimes(1);
+      expect(socketStub.disconnect).toHaveBeenCalledTimes(1);
     });
   });
 });

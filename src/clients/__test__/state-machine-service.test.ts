@@ -1,8 +1,6 @@
 import axios from 'axios';
-import {
-  StateMachineListItem,
-  StateMachineServiceClient,
-} from '../state-machine-service';
+import { StateMachineListItem } from '../../types/state-machine-service';
+import { StateMachineServiceClient } from '../state-machine-service';
 
 jest.mock('axios');
 const mockAxios = axios as jest.Mocked<typeof axios>;
@@ -14,6 +12,7 @@ jest.mock('../../lib/utils', () => ({
 
 describe('state-machine-service', () => {
   afterEach(() => {
+    jest.clearAllMocks();
     jest.resetAllMocks();
   });
 
@@ -36,13 +35,12 @@ describe('state-machine-service', () => {
         // Act
         return client.createStateMachine(definition).then((data) => {
           // Assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/machine',
           );
           expect(postSpy.mock.calls[0][1]).toBe(definition);
           expect(data).toStrictEqual({
-            status: 'created',
             orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
           });
         });
@@ -63,13 +61,12 @@ describe('state-machine-service', () => {
           .createStateMachine(JSON.stringify(definition))
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/machine',
             );
             expect(postSpy.mock.calls[0][1]).toBe(JSON.stringify(definition));
             expect(data).toStrictEqual({
-              status: 'created',
               orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
             });
           });
@@ -113,7 +110,7 @@ describe('state-machine-service', () => {
         .getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
-          expect(getSpy).toBeCalledTimes(1);
+          expect(getSpy).toHaveBeenCalledTimes(1);
           expect(getSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123',
           );
@@ -134,7 +131,7 @@ describe('state-machine-service', () => {
         .getDetailsForExecution('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
-          expect(getSpy).toBeCalledTimes(1);
+          expect(getSpy).toHaveBeenCalledTimes(1);
           expect(getSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/execution/orid:1:mdsCloud:::1:sm:test-123',
           );
@@ -178,7 +175,7 @@ describe('state-machine-service', () => {
         .getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
-          expect(getSpy).toBeCalledTimes(1);
+          expect(getSpy).toHaveBeenCalledTimes(1);
           expect(getSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123',
           );
@@ -199,7 +196,7 @@ describe('state-machine-service', () => {
         .getStateMachine('orid:1:mdsCloud:::1:sm:test-123')
         .then((data) => {
           // Assert
-          expect(getSpy).toBeCalledTimes(1);
+          expect(getSpy).toHaveBeenCalledTimes(1);
           expect(getSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123',
           );
@@ -244,13 +241,12 @@ describe('state-machine-service', () => {
           .invokeStateMachine('orid:1:mdsCloud:::1:sm:test-123', argData)
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke',
             );
             expect(postSpy.mock.calls[0][1]).toBe(argData);
             expect(data).toStrictEqual({
-              status: 'invoked',
               orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345',
             });
           });
@@ -274,13 +270,12 @@ describe('state-machine-service', () => {
           )
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:test-123/invoke',
             );
             expect(postSpy.mock.calls[0][1]).toBe(JSON.stringify(argData));
             expect(data).toStrictEqual({
-              status: 'invoked',
               orid: 'orid:1:mdsCloud:::1:sm:test-123/abcde12345',
             });
           });
@@ -320,7 +315,7 @@ describe('state-machine-service', () => {
       // Act
       return client.listStateMachines().then((data) => {
         // Assert
-        expect(getSpy).toBeCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledTimes(1);
         expect(getSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/machines',
         );
@@ -365,13 +360,12 @@ describe('state-machine-service', () => {
           .updateStateMachine('orid:1:mdsCloud:::1:sm:abcde12345', definition)
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345',
             );
             expect(postSpy.mock.calls[0][1]).toBe(definition);
             expect(data).toStrictEqual({
-              status: 'updated',
               orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
             });
           });
@@ -395,13 +389,12 @@ describe('state-machine-service', () => {
           )
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/machine/orid:1:mdsCloud:::1:sm:abcde12345',
             );
             expect(postSpy.mock.calls[0][1]).toBe(JSON.stringify(definition));
             expect(data).toStrictEqual({
-              status: 'updated',
               orid: 'orid:1:mdsCloud:::1:sm:abcde12345',
             });
           });
@@ -444,7 +437,7 @@ describe('state-machine-service', () => {
       // Act
       return client.deleteStateMachine('test').then((data) => {
         // Assert
-        expect(deleteSpy).toBeCalledTimes(1);
+        expect(deleteSpy).toHaveBeenCalledTimes(1);
         expect(deleteSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/machine/test',
         );
@@ -469,7 +462,7 @@ describe('state-machine-service', () => {
           }),
         )
         .then(() => {
-          expect(deleteSpy).toBeCalledTimes(1);
+          expect(deleteSpy).toHaveBeenCalledTimes(1);
           expect(deleteSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/machine/test',
           );

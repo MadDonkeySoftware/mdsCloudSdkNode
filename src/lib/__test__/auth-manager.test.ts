@@ -49,7 +49,7 @@ describe(__filename, () => {
       expect(token).toBe(expectedToken);
       expect(token2).toBe(expectedToken);
 
-      expect(postSpy).toBeCalledTimes(1);
+      expect(postSpy).toHaveBeenCalledTimes(1);
       expect(postSpy.mock.calls[0][0]).toBe(
         'http://127.0.0.1:8080/v1/authenticate',
       );
@@ -85,11 +85,11 @@ describe(__filename, () => {
       // Assert
       expect(token).toStrictEqual(expectedToken);
 
-      expect(postSpy).toBeCalledTimes(1);
+      expect(postSpy).toHaveBeenCalledTimes(1);
       expect(postSpy.mock.calls[0][0]).toBe(
         'http://127.0.0.1:8080/v1/authenticate',
       );
-      expect(cache.remove).toBeCalledTimes(1);
+      expect(cache.remove).toHaveBeenCalledTimes(1);
     });
 
     it('Parameter-less call raises error when non-200 response received.', () => {
@@ -110,7 +110,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/authenticate',
           );

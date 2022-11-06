@@ -11,7 +11,7 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "noImplicitAny": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "esModuleInterop": true, // for FormData
 
     // Disable later

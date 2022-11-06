@@ -43,12 +43,12 @@ describe(__filename, () => {
       // Act
       return download(url, dest, undefined).then(() => {
         // Assert
-        expect(mockedFs.createWriteStream).toBeCalledTimes(1);
+        expect(mockedFs.createWriteStream).toHaveBeenCalledTimes(1);
         expect(mockedFs.createWriteStream.mock.calls[0][0]).toBe(
           '/foo/baz/bar.txt',
         );
 
-        expect(fakeResponse.data.pipe).toBeCalledTimes(1);
+        expect(fakeResponse.data.pipe).toHaveBeenCalledTimes(1);
         expect(fakeResponse.data.pipe.mock.calls[0][0]).toBe(fakeWriter);
       });
     });

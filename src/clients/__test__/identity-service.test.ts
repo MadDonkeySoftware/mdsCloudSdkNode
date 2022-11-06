@@ -4,6 +4,7 @@ import { IdentityServiceClient } from '../identity-service';
 
 describe('identity-service', () => {
   afterEach(() => {
+    jest.clearAllMocks();
     jest.resetAllMocks();
   });
 
@@ -33,7 +34,7 @@ describe('identity-service', () => {
       };
       return client.register(payload).then((data) => {
         // Assert
-        expect(postSpy).toBeCalledTimes(1);
+        expect(postSpy).toHaveBeenCalledTimes(1);
         expect(postSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/register',
         );
@@ -67,7 +68,7 @@ describe('identity-service', () => {
         )
         .then(() => {
           // Assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/register',
           );
@@ -94,7 +95,7 @@ describe('identity-service', () => {
       };
       return client.authenticate(payload).then((token) => {
         // Assert
-        expect(mockGetAuthenticatonToken).toBeCalledTimes(1);
+        expect(mockGetAuthenticatonToken).toHaveBeenCalledTimes(1);
         expect(mockGetAuthenticatonToken.mock.calls[0][0]).toStrictEqual(
           payload,
         );
@@ -104,7 +105,7 @@ describe('identity-service', () => {
   });
 
   describe('updateUser', () => {
-    it('returns a resolved promise with update data when successful', () => {
+    it('returns a resolved promise with update data when successful', async () => {
       // Arrange
       const postSpy = jest.spyOn(axios, 'post');
       postSpy.mockResolvedValue({
@@ -120,14 +121,13 @@ describe('identity-service', () => {
         newPassword: 'testPassword',
         friendlyName: 'testName',
       };
-      return client.updateUser(payload).then((data) => {
-        // Assert
-        expect(postSpy).toBeCalledTimes(1);
-        expect(postSpy.mock.calls[0][0]).toBe(
-          'http://127.0.0.1:8080/v1/updateUser',
-        );
-        expect(data).toStrictEqual({});
-      });
+      await client.updateUser(payload);
+
+      // Assert
+      expect(postSpy).toHaveBeenCalledTimes(1);
+      expect(postSpy.mock.calls[0][0]).toBe(
+        'http://127.0.0.1:8080/v1/updateUser',
+      );
     });
 
     it('returns a rejected promise when an error occurs', () => {
@@ -153,7 +153,7 @@ describe('identity-service', () => {
         )
         .then(() => {
           // Assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/updateUser',
           );
@@ -174,7 +174,7 @@ describe('identity-service', () => {
       // Act
       return client.getPublicSignature().then((data) => {
         // Assert
-        expect(getSpy).toBeCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledTimes(1);
         expect(getSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/publicSignature',
         );
@@ -198,7 +198,7 @@ describe('identity-service', () => {
           }),
         )
         .then(() => {
-          expect(getSpy).toBeCalledTimes(1);
+          expect(getSpy).toHaveBeenCalledTimes(1);
           expect(getSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/publicSignature',
           );
@@ -223,7 +223,7 @@ describe('identity-service', () => {
       };
       return client.impersonateUser(payload).then((data) => {
         // Assert
-        expect(postSpy).toBeCalledTimes(1);
+        expect(postSpy).toHaveBeenCalledTimes(1);
         expect(postSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/impersonate',
         );
@@ -251,7 +251,7 @@ describe('identity-service', () => {
           }),
         )
         .then(() => {
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/impersonate',
           );

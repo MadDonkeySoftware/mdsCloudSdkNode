@@ -94,7 +94,7 @@ describe(__filename, () => {
       const sfClient = await MdsSdk.getServerlessFunctionsClient();
       const identityClient = await MdsSdk.getIdentityServiceClient();
 
-      expect(mockUtils.getEnvConfig).toBeCalledTimes(1);
+      expect(mockUtils.getEnvConfig).toHaveBeenCalledTimes(1);
       expect(mockUtils.getEnvConfig.mock.calls[0][0]).toBe('testEnv');
       expect(qsClient.serviceUrl).toBe(qsUrl);
       expect(smClient.serviceUrl).toBe(smUrl);
@@ -142,7 +142,7 @@ describe(__filename, () => {
       const sfClient = await MdsSdk.getServerlessFunctionsClient();
       const identityClient = await MdsSdk.getIdentityServiceClient();
 
-      expect(mockUtils.getEnvConfig).toBeCalledTimes(1);
+      expect(mockUtils.getEnvConfig).toHaveBeenCalledTimes(1);
       expect(mockUtils.getEnvConfig.mock.calls[0][0]).toBe('defaultEnv');
       expect(qsClient.serviceUrl).toBe(qsUrl);
       expect(smClient.serviceUrl).toBe(smUrl);
@@ -176,7 +176,7 @@ describe(__filename, () => {
       const identityClient = await MdsSdk.getIdentityServiceClient();
 
       // NOTE: the URLs are still set here given that previous tests have set them.
-      expect(mockUtils.getEnvConfig).toBeCalledTimes(1);
+      expect(mockUtils.getEnvConfig).toHaveBeenCalledTimes(1);
       expect(mockUtils.getEnvConfig.mock.calls[0][0]).toBe(undefined);
       expect(qsClient.serviceUrl).toBe(qsUrl);
       expect(smClient.serviceUrl).toBe(smUrl);

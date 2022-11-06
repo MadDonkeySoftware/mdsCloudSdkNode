@@ -192,10 +192,10 @@ export class FileServiceClient {
   async downloadFile(
     containerPath: string,
     destination?: string,
-  ): Promise<void> {
+  ): Promise<unknown> {
     const url = urlJoin(this.serviceUrl, 'v1', 'download', containerPath);
 
-    await download(url, destination, this.authManager);
+    return download(url, destination, this.authManager);
   }
 
   /**
