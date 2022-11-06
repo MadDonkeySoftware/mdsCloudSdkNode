@@ -4,7 +4,13 @@ import { VError } from 'verror';
 import { createReadStream } from 'fs';
 import { AuthManager } from '../lib/auth-manager';
 import { download, getRequestOptions, urlJoin } from '../lib/utils';
-import { DirectoryContents } from '../types';
+import {
+  ContainerListItem,
+  ContainerPathContents,
+  CreateContainerPathResult,
+  CreateContainerResult,
+  UploadFileResult,
+} from '../types';
 
 export class FileServiceClient {
   private _serviceUrl: string;
@@ -28,7 +34,7 @@ export class FileServiceClient {
    * List the available containers from the container service
    * @returns The list of available containers
    */
-  async listContainers(): Promise<string[]> {
+  async listContainers(): Promise<ContainerListItem[]> {
     const url = urlJoin(this.serviceUrl, 'v1', 'containers');
     const options = await getRequestOptions({
       authManager: this.authManager,
@@ -56,7 +62,7 @@ export class FileServiceClient {
    * @param name The name of the container to create
    * @returns
    */
-  async createContainer(name: string): Promise<void> {
+  async createContainer(name: string): Promise<CreateContainerResult> {
     const url = urlJoin(this.serviceUrl, 'v1', 'createContainer', name);
     const options = await getRequestOptions({
       authManager: this.authManager,
@@ -65,7 +71,7 @@ export class FileServiceClient {
     const resp = await axios.post(url, {}, options);
     switch (resp.status) {
       case 201:
-        return;
+        return resp.data;
       case 409:
         throw new VError(
           {
@@ -96,7 +102,10 @@ export class FileServiceClient {
    * @param newPath the new path to create in the container, using / for separators.
    * @returns
    */
-  async createContainerPath(orid: string, newPath: string): Promise<void> {
+  async createContainerPath(
+    orid: string,
+    newPath: string,
+  ): Promise<CreateContainerPathResult> {
     const url = urlJoin(this.serviceUrl, 'v1', 'create', orid, newPath);
     const options = await getRequestOptions({
       authManager: this.authManager,
@@ -105,7 +114,7 @@ export class FileServiceClient {
     const resp = await axios.post(url, {}, options);
     switch (resp.status) {
       case 201:
-        return;
+        return resp.data;
       case 409:
         throw new VError(
           {
@@ -180,7 +189,10 @@ export class FileServiceClient {
    * @param destination Path to where your file will be written
    * @returns
    */
-  async downloadFile(containerPath: string, destination?: string) {
+  async downloadFile(
+    containerPath: string,
+    destination?: string,
+  ): Promise<unknown> {
     const url = urlJoin(this.serviceUrl, 'v1', 'download', containerPath);
 
     return download(url, destination, this.authManager);
@@ -194,7 +206,7 @@ export class FileServiceClient {
    */
   async listContainerContents(
     containerOrPath: string,
-  ): Promise<DirectoryContents> {
+  ): Promise<ContainerPathContents> {
     const url = urlJoin(this.serviceUrl, 'v1', 'list', containerOrPath);
     const options = await getRequestOptions({
       authManager: this.authManager,
@@ -222,7 +234,10 @@ export class FileServiceClient {
    * @param filePath The path to the file on the local system to upload
    * @returns
    */
-  async uploadFile(containerPath: string, filePath: string): Promise<void> {
+  async uploadFile(
+    containerPath: string,
+    filePath: string,
+  ): Promise<UploadFileResult> {
     const form = new FormData();
     form.append('file', createReadStream(filePath));
 
@@ -235,7 +250,7 @@ export class FileServiceClient {
     const resp = await axios.post(url, form, options);
     switch (resp.status) {
       case 200:
-        return Promise.resolve();
+        return resp.data;
       default:
         throw new VError(
           {

@@ -20,6 +20,7 @@ const fakeAuthManager = {
 
 describe('file-service', () => {
   afterEach(() => {
+    jest.clearAllMocks();
     jest.resetAllMocks();
   });
 
@@ -44,7 +45,7 @@ describe('file-service', () => {
       // Act
       return client.listContainers().then((containers) => {
         // Assert
-        expect(getSpy).toBeCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledTimes(1);
         expect(getSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/containers',
         );
@@ -89,7 +90,7 @@ describe('file-service', () => {
       // Act
       return client.createContainer('test').then((data) => {
         // Assert
-        expect(postSpy).toBeCalledTimes(1);
+        expect(postSpy).toHaveBeenCalledTimes(1);
         expect(postSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/createContainer/test',
         );
@@ -117,7 +118,7 @@ describe('file-service', () => {
           }),
         )
         .then(() => {
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/createContainer/test',
           );
@@ -144,7 +145,7 @@ describe('file-service', () => {
         )
         .then(() => {
           // Assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/createContainer/test',
           );
@@ -169,7 +170,7 @@ describe('file-service', () => {
       // Act
       return client.createContainerPath(orid, path).then((data) => {
         // Assert
-        expect(postSpy).toBeCalledTimes(1);
+        expect(postSpy).toHaveBeenCalledTimes(1);
         expect(postSpy.mock.calls[0][0]).toBe(
           `http://127.0.0.1:8080/v1/create/${orid}/${path}`,
         );
@@ -199,7 +200,7 @@ describe('file-service', () => {
         )
         .then(() => {
           // Assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             `http://127.0.0.1:8080/v1/create/${orid}/${path}`,
           );
@@ -229,7 +230,7 @@ describe('file-service', () => {
         )
         .then(() => {
           // Assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             `http://127.0.0.1:8080/v1/create/${orid}/${path}`,
           );
@@ -252,7 +253,7 @@ describe('file-service', () => {
       // Act
       return client.deleteContainerOrPath('test').then((data) => {
         // Assert
-        expect(deleteSpy).toBeCalledTimes(1);
+        expect(deleteSpy).toHaveBeenCalledTimes(1);
         expect(deleteSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/test',
         );
@@ -280,7 +281,7 @@ describe('file-service', () => {
         )
         .then(() => {
           // Assert
-          expect(deleteSpy).toBeCalledTimes(1);
+          expect(deleteSpy).toHaveBeenCalledTimes(1);
           expect(deleteSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/test',
           );
@@ -307,7 +308,7 @@ describe('file-service', () => {
         )
         .then(() => {
           // Assert
-          expect(deleteSpy).toBeCalledTimes(1);
+          expect(deleteSpy).toHaveBeenCalledTimes(1);
           expect(deleteSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/test',
           );
@@ -316,7 +317,7 @@ describe('file-service', () => {
   });
 
   describe('downloadFile', () => {
-    it('returns result of download file', () => {
+    it('returns result of download file', async () => {
       // Arrange
       const fakeBuffer = {};
       mockUtils.download.mockResolvedValue(fakeBuffer);
@@ -326,10 +327,10 @@ describe('file-service', () => {
       );
 
       // Act
-      return client.downloadFile('test/foo').then((buff) => {
-        // Assert
-        expect(buff).toBe(fakeBuffer);
-      });
+      const buff = await client.downloadFile('test/foo');
+
+      // Assert
+      expect(buff).toBe(fakeBuffer);
     });
   });
 
@@ -353,7 +354,7 @@ describe('file-service', () => {
       // Act
       return client.listContainerContents('test').then((data) => {
         // Assert
-        expect(getSpy).toBeCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledTimes(1);
         expect(getSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/list/test',
         );
@@ -382,7 +383,7 @@ describe('file-service', () => {
         )
         .then(() => {
           // Assert
-          expect(getSpy).toBeCalledTimes(1);
+          expect(getSpy).toHaveBeenCalledTimes(1);
           expect(getSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/list/test',
           );
@@ -405,7 +406,7 @@ describe('file-service', () => {
       // Act
       return client.uploadFile('test', './foo').then((data) => {
         // Assert
-        expect(postSpy).toBeCalledTimes(1);
+        expect(postSpy).toHaveBeenCalledTimes(1);
         expect(postSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/upload/test',
         );
@@ -433,7 +434,7 @@ describe('file-service', () => {
         )
         .then(() => {
           // Assert
-          expect(mockedAxios.post).toBeCalledTimes(1);
+          expect(mockedAxios.post).toHaveBeenCalledTimes(1);
           expect(mockedAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/upload/test',
           );

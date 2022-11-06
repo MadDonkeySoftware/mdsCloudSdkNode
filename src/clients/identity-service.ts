@@ -2,25 +2,11 @@ import axios from 'axios';
 import { VError } from 'verror';
 import { AuthManager } from '../lib';
 import { getRequestOptions, urlJoin } from '../lib/utils';
-
-export interface CreateResult {
-  /**
-   * "Success" or "Failed"
-   */
-  status: string;
-
-  /**
-   * When successful the uniquely identifying account id
-   */
-  accountId?: string;
-}
-
-export interface ImpersonateResult {
-  /**
-   * The impersonation token of the current user
-   */
-  token: string;
-}
+import {
+  ImpersonationResult,
+  PublicSignatureResponse,
+  RegisterResult,
+} from '../types/identity-service';
 
 export class IdentityServiceClient {
   private _serviceUrl: string;
@@ -68,7 +54,7 @@ export class IdentityServiceClient {
     password: string;
     friendlyName: string;
     accountName: string;
-  }) {
+  }): Promise<RegisterResult> {
     const url = urlJoin(this.serviceUrl, 'v1', 'register');
     const body = {
       userId,
@@ -85,7 +71,7 @@ export class IdentityServiceClient {
     const resp = await axios.post(url, body, options);
     switch (resp.status) {
       case 200:
-        return { ...resp.data };
+        return resp.data;
       default:
         throw new VError(
           {
@@ -114,7 +100,7 @@ export class IdentityServiceClient {
     accountId: string;
     userId: string;
     password: string;
-  }) {
+  }): Promise<string> {
     return this.authManager.getAuthenticationToken({
       accountId,
       userId,
@@ -140,7 +126,7 @@ export class IdentityServiceClient {
     oldPassword?: string;
     newPassword?: string;
     friendlyName?: string;
-  }) {
+  }): Promise<void> {
     const url = urlJoin(this.serviceUrl, 'v1', 'updateUser');
     const body = {
       email,
@@ -157,7 +143,7 @@ export class IdentityServiceClient {
     const resp = await axios.post(url, body, options);
     switch (resp.status) {
       case 200:
-        return { ...resp.data };
+        return;
       default:
         throw new VError(
           {
@@ -174,7 +160,7 @@ export class IdentityServiceClient {
   /**
    * Gets the public signature all tokens are signed with by the identity endpoint
    */
-  async getPublicSignature() {
+  async getPublicSignature(): Promise<PublicSignatureResponse> {
     const url = urlJoin(this.serviceUrl, 'v1', 'publicSignature');
 
     const options = await getRequestOptions({
@@ -184,7 +170,7 @@ export class IdentityServiceClient {
     const resp = await axios.get(url, options);
     switch (resp.status) {
       case 200:
-        return { ...resp.data };
+        return resp.data;
       default:
         throw new VError(
           {
@@ -210,7 +196,7 @@ export class IdentityServiceClient {
   }: {
     accountId: string;
     userId?: string;
-  }) {
+  }): Promise<ImpersonationResult> {
     const url = urlJoin(this.serviceUrl, 'v1', 'impersonate');
     const body = {
       accountId,
@@ -225,7 +211,7 @@ export class IdentityServiceClient {
     const resp = await axios.post(url, body, options);
     switch (resp.status) {
       case 200:
-        return { ...resp.data };
+        return resp.data;
       default:
         throw new VError(
           {

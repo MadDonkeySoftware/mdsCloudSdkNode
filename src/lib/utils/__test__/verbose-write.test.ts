@@ -17,7 +17,7 @@ describe(__filename, () => {
     verboseWrite('test');
 
     // Assert
-    expect(writeSpy).toBeCalledTimes(0);
+    expect(writeSpy).toHaveBeenCalledTimes(0);
   });
 
   it('does write when condition is true', async () => {
@@ -28,6 +28,6 @@ describe(__filename, () => {
     verboseWrite('test', true);
 
     // Assert
-    expect(writeSpy).toBeCalledTimes(1);
+    expect(writeSpy).toHaveBeenCalledTimes(1);
   });
 });

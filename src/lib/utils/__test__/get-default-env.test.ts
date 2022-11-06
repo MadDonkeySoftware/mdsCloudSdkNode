@@ -76,7 +76,7 @@ describe(__filename, () => {
       expect(IN_PROC_CACHE.getCacheState()).toStrictEqual(
         new Map([['getDefaultEnv', result]]),
       );
-      expect(mockedWrappers.fsExists).toBeCalledTimes(1);
+      expect(mockedWrappers.fsExists).toHaveBeenCalledTimes(1);
     });
   });
 });

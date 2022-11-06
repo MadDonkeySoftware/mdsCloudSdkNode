@@ -23,6 +23,7 @@ const mockUtils = utils as jest.Mocked<typeof utils>;
 
 describe(__filename, () => {
   afterEach(() => {
+    jest.clearAllMocks();
     jest.resetAllMocks();
   });
 
@@ -45,7 +46,7 @@ describe(__filename, () => {
       // Act
       return client.createFunction('test').then((data) => {
         // Assert
-        expect(postSpy).toBeCalledTimes(1);
+        expect(postSpy).toHaveBeenCalledTimes(1);
         expect(postSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/create',
         );
@@ -71,7 +72,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/create',
           );
@@ -94,7 +95,7 @@ describe(__filename, () => {
       // Act
       return client.listFunctions().then((functions) => {
         // Assert
-        expect(getSpy).toBeCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledTimes(1);
         expect(getSpy.mock.calls[0][0]).toBe('http://127.0.0.1:8080/v1/list');
         expect(functions).toStrictEqual(expectedResult);
       });
@@ -120,7 +121,7 @@ describe(__filename, () => {
   });
 
   describe('deleteFunction', () => {
-    it('returns a resolved promise when successful', () => {
+    it('returns a resolved promise when successful', async () => {
       // Arrange
       const deleteSpy = mockAxios.delete;
       deleteSpy.mockResolvedValue({
@@ -129,14 +130,11 @@ describe(__filename, () => {
       const client = new ServerlessFunctionsClient('http://127.0.0.1:8080');
 
       // Act
-      return client.deleteFunction('test').then((data) => {
-        // Assert
-        expect(deleteSpy).toBeCalledTimes(1);
-        expect(deleteSpy.mock.calls[0][0]).toBe(
-          'http://127.0.0.1:8080/v1/test',
-        );
-        expect(data).toStrictEqual({ status: 'deleted', id: 'test' });
-      });
+      await client.deleteFunction('test');
+
+      // Assert
+      expect(deleteSpy).toHaveBeenCalledTimes(1);
+      expect(deleteSpy.mock.calls[0][0]).toBe('http://127.0.0.1:8080/v1/test');
     });
 
     it('returns a rejected promise when an unknown error occurs', () => {
@@ -155,7 +153,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(deleteSpy).toBeCalledTimes(1);
+          expect(deleteSpy).toHaveBeenCalledTimes(1);
           expect(deleteSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/test',
           );
@@ -179,7 +177,7 @@ describe(__filename, () => {
       // Act
       return client.invokeFunction('test', { foo: 'bar' }).then((result) => {
         // Assert
-        expect(postSpy).toBeCalledTimes(1);
+        expect(postSpy).toHaveBeenCalledTimes(1);
         expect(postSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/invoke/test',
         );
@@ -201,7 +199,7 @@ describe(__filename, () => {
         .invokeFunction('test', { foo: 'bar' }, true)
         .then((result) => {
           // Assert
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/invoke/test?async=true',
           );
@@ -225,7 +223,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(postSpy).toBeCalledTimes(1);
+          expect(postSpy).toHaveBeenCalledTimes(1);
           expect(postSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/invoke/test',
           );
@@ -249,7 +247,7 @@ describe(__filename, () => {
       // Act
       return client.getFunctionDetails('test').then((data) => {
         // Assert
-        expect(getSpy).toBeCalledTimes(1);
+        expect(getSpy).toHaveBeenCalledTimes(1);
         expect(getSpy.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/inspect/test',
         );
@@ -273,7 +271,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(getSpy).toBeCalledTimes(1);
+          expect(getSpy).toHaveBeenCalledTimes(1);
           expect(getSpy.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/inspect/test',
           );
@@ -297,7 +295,7 @@ describe(__filename, () => {
           .updateFunctionCode('test', 'node', 'foo/bar:main', '/tmp/foo.zip')
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/uploadCode/test',
             );
@@ -328,13 +326,13 @@ describe(__filename, () => {
           .updateFunctionCode('test', 'node', 'foo/bar:main', '/tmp/foo')
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/uploadCode/test',
             );
             expect(data).toStrictEqual({ foo: 'bar' });
 
-            expect(unlinkSyncSpy).toBeCalledTimes(1);
+            expect(unlinkSyncSpy).toHaveBeenCalledTimes(1);
             expect(unlinkSyncSpy.mock.calls[0][0]).toBe('/tmp/foo.zip');
           });
       });
@@ -359,7 +357,7 @@ describe(__filename, () => {
           )
           .then((data) => {
             // Assert
-            expect(postSpy).toBeCalledTimes(1);
+            expect(postSpy).toHaveBeenCalledTimes(1);
             expect(postSpy.mock.calls[0][0]).toBe(
               'http://127.0.0.1:8080/v1/uploadCode/test',
             );
@@ -390,7 +388,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/uploadCode/test',
           );

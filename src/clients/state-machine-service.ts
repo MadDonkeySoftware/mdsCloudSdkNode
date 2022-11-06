@@ -2,118 +2,15 @@ import axios from 'axios';
 import { VError } from 'verror';
 import { AuthManager } from '../lib';
 import { getRequestOptions, urlJoin } from '../lib/utils';
-
-export interface CreateStateMachineResult {
-  /**
-   * The unique identifier of the newly created state machine
-   */
-  orid: string;
-  /**
-   * Status of the operation result
-   */
-  status: string;
-}
-
-export interface OperationDetail {
-  /**
-   * The unique identifier of the operation
-   */
-  orid: string;
-  /**
-   * The ISO timestamp when the operation was created
-   */
-  created: string;
-  /**
-   * The status of this operation
-   */
-  status: string;
-  /**
-   * The user defined key for this operation
-   */
-  stateKey: string;
-  /**
-   * A JSON formatted object for the input
-   */
-  input: string;
-  /**
-   * A JSON formatted object for the output
-   */
-  output: string;
-}
-
-export interface ExecutionDetailsResult {
-  /**
-   * The ORID of the state machine execution
-   */
-  orid: string;
-  /**
-   * The status of the execution at the time of the request
-   */
-  status: string;
-  /**
-   * Operations that are associated with this execution
-   */
-  operations: OperationDetail[];
-}
-
-export interface StateMachineDetails {
-  /**
-   * The ORID of the state machine
-   */
-  orid: string;
-  /**
-   * The friendly name for this state machine
-   */
-  name: string;
-  /**
-   * The definition for this state machine
-   */
-  definition: unknown; // TODO: Figure out the best type here. Potentially Record<string, unknown>?
-}
-
-export interface ExecutionInvokeResult {
-  /**
-   * The ORID of the state machine execution
-   */
-  orid: string;
-  /**
-   * The status of the state machine execution.
-   */
-  status: string;
-}
-
-export interface StateMachineListItem {
-  /**
-   * The ORID of the state machine
-   */
-  orid: string;
-  /**
-   * The friendly name of the state machine
-   */
-  name: string;
-  /**
-   * The currently active definition for this state machine
-   */
-  activeVersion: string;
-}
-
-export interface UpdateStateMachineResult {
-  /**
-   * The ORID of the state machine being updated
-   */
-  orid: string;
-  /**
-   * The status of the state machine execution.
-   */
-  status: string;
-}
-
-export interface DeleteStateMachineResult {
-  /**
-   * The ORID of the state machine being updated
-   */
-  orid: string;
-}
+import {
+  CreateStateMachineResult,
+  DeleteStateMachineResult,
+  StateMachineDetails,
+  StateMachineExecutionDetailsResult,
+  StateMachineExecutionInvokeResult,
+  StateMachineListItem,
+  UpdateStateMachineResult,
+} from '../types/state-machine-service';
 
 export class StateMachineServiceClient {
   private _serviceUrl: string;
@@ -149,8 +46,7 @@ export class StateMachineServiceClient {
     const resp = await axios.post(url, definition, options);
     switch (resp.status) {
       case 200: {
-        const parsedBody = resp.data;
-        return { status: 'created', orid: parsedBody.orid };
+        return resp.data;
       }
       default:
         throw new VError(
@@ -172,7 +68,7 @@ export class StateMachineServiceClient {
    */
   async getDetailsForExecution(
     orid: string,
-  ): Promise<ExecutionDetailsResult | null> {
+  ): Promise<StateMachineExecutionDetailsResult | null> {
     const url = urlJoin(this.serviceUrl, 'v1', 'execution', orid);
 
     const options = await getRequestOptions({
@@ -236,7 +132,7 @@ export class StateMachineServiceClient {
   async invokeStateMachine(
     orid: string,
     data: unknown, // TODO: Figure out best type here. Was Object.
-  ): Promise<ExecutionInvokeResult> {
+  ): Promise<StateMachineExecutionInvokeResult> {
     const url = urlJoin(this.serviceUrl, 'v1', 'machine', orid, 'invoke');
 
     const options = await getRequestOptions({
@@ -246,8 +142,7 @@ export class StateMachineServiceClient {
     const resp = await axios.post(url, data, options);
     switch (resp.status) {
       case 200: {
-        const parsedBody = resp.data;
-        return { status: 'invoked', orid: parsedBody.orid };
+        return resp.data;
       }
       default:
         throw new VError(
@@ -307,8 +202,7 @@ export class StateMachineServiceClient {
     const resp = await axios.post(url, definition, options);
     switch (resp.status) {
       case 200: {
-        const parsedBody = resp.data;
-        return { status: 'updated', orid: parsedBody.orid };
+        return resp.data;
       }
       default:
         throw new VError(

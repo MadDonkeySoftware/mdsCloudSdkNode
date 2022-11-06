@@ -6,6 +6,7 @@ const mockAxios = axios as jest.Mocked<typeof axios>;
 
 describe(__filename, () => {
   afterEach(() => {
+    jest.clearAllMocks();
     jest.resetAllMocks();
   });
 
@@ -24,7 +25,7 @@ describe(__filename, () => {
       // Act
       return client.createQueue('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.post).toBeCalledTimes(1);
+        expect(mockAxios.post).toHaveBeenCalledTimes(1);
         expect(mockAxios.post.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queue',
         );
@@ -47,7 +48,7 @@ describe(__filename, () => {
         .createQueue('test-queue', { resource: 'someResource' })
         .then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/queue',
           );
@@ -71,7 +72,7 @@ describe(__filename, () => {
         .createQueue('test-queue', { dlq: 'someDlq' })
         .then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/queue',
           );
@@ -93,7 +94,7 @@ describe(__filename, () => {
       // Act
       return client.createQueue('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.post).toBeCalledTimes(1);
+        expect(mockAxios.post).toHaveBeenCalledTimes(1);
         expect(mockAxios.post.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queue',
         );
@@ -132,7 +133,7 @@ describe(__filename, () => {
       // Act
       return client.deleteMessage('test-queue', '12345').then((data) => {
         // Assert
-        expect(mockAxios.delete).toBeCalledTimes(1);
+        expect(mockAxios.delete).toHaveBeenCalledTimes(1);
         expect(mockAxios.delete.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/message/test-queue/12345',
         );
@@ -155,7 +156,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(mockAxios.delete).toBeCalledTimes(1);
+          expect(mockAxios.delete).toHaveBeenCalledTimes(1);
           expect(mockAxios.delete.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/message/test-queue/12345',
           );
@@ -174,7 +175,7 @@ describe(__filename, () => {
       // Act
       return client.deleteQueue('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.delete).toBeCalledTimes(1);
+        expect(mockAxios.delete).toHaveBeenCalledTimes(1);
         expect(mockAxios.delete.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queue/test-queue',
         );
@@ -197,7 +198,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(mockAxios.delete).toBeCalledTimes(1);
+          expect(mockAxios.delete).toHaveBeenCalledTimes(1);
           expect(mockAxios.delete.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/queue/test-queue',
           );
@@ -218,7 +219,7 @@ describe(__filename, () => {
         // Act
         return client.enqueueMessage('test-queue', message).then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/message/test-queue',
           );
@@ -238,7 +239,7 @@ describe(__filename, () => {
         // Act
         return client.enqueueMessage('test-queue', message).then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/message/test-queue',
           );
@@ -258,7 +259,7 @@ describe(__filename, () => {
         // Act
         return client.enqueueMessage('test-queue', message).then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/message/test-queue',
           );
@@ -278,7 +279,7 @@ describe(__filename, () => {
         // Act
         return client.enqueueMessage('test-queue', message).then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/message/test-queue',
           );
@@ -326,7 +327,7 @@ describe(__filename, () => {
       // Act
       return client.fetchMessage('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.get).toBeCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/message/test-queue',
         );
@@ -346,7 +347,7 @@ describe(__filename, () => {
       // Act
       return client.fetchMessage('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.get).toBeCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/message/test-queue',
         );
@@ -387,7 +388,7 @@ describe(__filename, () => {
       // Act
       return client.getQueueDetails('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.get).toBeCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queue/test-queue/details',
         );
@@ -407,7 +408,7 @@ describe(__filename, () => {
       // Act
       return client.getQueueDetails('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.get).toBeCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queue/test-queue/details',
         );
@@ -448,7 +449,7 @@ describe(__filename, () => {
       // Act
       return client.getQueueLength('test-queue').then((data) => {
         // Assert
-        expect(mockAxios.get).toBeCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queue/test-queue/length',
         );
@@ -486,7 +487,7 @@ describe(__filename, () => {
       // Act
       return client.listQueues().then((data) => {
         // Assert
-        expect(mockAxios.get).toBeCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queues',
         );
@@ -524,7 +525,7 @@ describe(__filename, () => {
         .updateQueue('test-queue', { resource: 'NULL' })
         .then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/queue/test-queue',
           );
@@ -542,7 +543,7 @@ describe(__filename, () => {
       // Act
       return client.updateQueue('test-queue', { dlq: 'NULL' }).then((data) => {
         // Assert
-        expect(mockAxios.post).toBeCalledTimes(1);
+        expect(mockAxios.post).toHaveBeenCalledTimes(1);
         expect(mockAxios.post.mock.calls[0][0]).toBe(
           'http://127.0.0.1:8080/v1/queue/test-queue',
         );
@@ -562,7 +563,7 @@ describe(__filename, () => {
         .updateQueue('test-queue', { dlq: 'someDlqResource' })
         .then((data) => {
           // Assert
-          expect(mockAxios.post).toBeCalledTimes(1);
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
           expect(mockAxios.post.mock.calls[0][0]).toBe(
             'http://127.0.0.1:8080/v1/queue/test-queue',
           );
@@ -586,7 +587,7 @@ describe(__filename, () => {
           }),
         )
         .then(() => {
-          expect(mockAxios.post).toBeCalledTimes(0);
+          expect(mockAxios.post).toHaveBeenCalledTimes(0);
         });
     });
 

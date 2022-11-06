@@ -3,79 +3,14 @@ import { VError } from 'verror';
 import { merge } from 'lodash';
 import { AuthManager } from '../lib';
 import { getRequestOptions, urlJoin } from '../lib/utils';
-
-export interface CreateQueueOptions {
-  /**
-   * The resource to invoke upon queueing a message to this queue.
-   */
-  resource?: string;
-  /**
-   * The dlq to place messages in when the resource fails to invoke properly.
-   */
-  dlq?: string;
-}
-
-export interface CreateQueueResult {
-  /**
-   * "created" or "exists" based on the pre-existence of the queue.
-   */
-  status: string; // TODO: Enum
-}
-
-export interface MessageResponse {
-  /**
-   * the timestamp of when this message was first received
-   */
-  fr: number;
-
-  /**
-   * the message unique identifier
-   */
-  id: string;
-
-  /**
-   * the body of the message
-   */
-  message: string;
-
-  /**
-   * the number of times this message was received
-   */
-  rc: number;
-  /**
-   * the timestamp of when this message was sent / created.
-   */
-  sent: number;
-}
-
-export interface QueueDetails {
-  /**
-   * the resource to invoke upon queueing a message to this queue.
-   */
-  resource: string;
-  /**
-   * the dlq to place messages in when the resource fails to invoke properly.
-   */
-  dlq: string;
-}
-
-export interface QueueLength {
-  /**
-   * the number of messages in the queue
-   */
-  size: string;
-}
-
-export interface UpdateQueueOptions {
-  /**
-   * the resource to invoke upon queueing a message to this queue.
-   */
-  resource?: string;
-  /**
-   * the dlq to place messages in when the resource fails to invoke properly.
-   */
-  dlq?: string;
-}
+import {
+  CreateQueueResult,
+  MessageResponse,
+  QueueDetails,
+  QueueLength,
+  QueueListItem,
+  QueueOptions,
+} from '../types/queue-service';
 
 export class QueueServiceClient {
   private _serviceUrl: string;
@@ -97,7 +32,7 @@ export class QueueServiceClient {
    */
   async createQueue(
     name: string,
-    { resource, dlq }: CreateQueueOptions = {},
+    { resource, dlq }: QueueOptions = {},
   ): Promise<CreateQueueResult> {
     const url = urlJoin(this.serviceUrl, 'v1', 'queue');
     const body: {
@@ -153,7 +88,7 @@ export class QueueServiceClient {
     const resp = await axios.delete(url, options);
     switch (resp.status) {
       case 200:
-        return Promise.resolve();
+        return;
       default:
         throw new VError(
           {
@@ -180,7 +115,7 @@ export class QueueServiceClient {
     const resp = await axios.delete(url, options);
     switch (resp.status) {
       case 204:
-        return Promise.resolve();
+        return;
       default:
         throw new VError(
           {
@@ -208,7 +143,7 @@ export class QueueServiceClient {
     const resp = await axios.post(url, message, options);
     switch (resp.status) {
       case 200:
-        return Promise.resolve();
+        return;
       default:
         throw new VError(
           {
@@ -314,7 +249,7 @@ export class QueueServiceClient {
   /**
    * Get a list of queue names available on the queue service
    */
-  async listQueues(): Promise<string[]> {
+  async listQueues(): Promise<QueueListItem[]> {
     const url = urlJoin(this.serviceUrl, 'v1', 'queues');
     const options = await getRequestOptions({
       authManager: this.authManager,
@@ -345,7 +280,7 @@ export class QueueServiceClient {
    */
   async updateQueue(
     orid: string,
-    { resource, dlq }: UpdateQueueOptions = {},
+    { resource, dlq }: QueueOptions = {},
   ): Promise<void> {
     const url = urlJoin(this.serviceUrl, 'v1', 'queue', orid);
     const body: {
@@ -380,7 +315,7 @@ export class QueueServiceClient {
     const resp = await axios.post(url, body, options);
     switch (resp.status) {
       case 200:
-        return undefined;
+        return;
       default:
         throw new VError(
           {
