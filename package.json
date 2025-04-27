@@ -1,6 +1,6 @@
 {
   "name": "@maddonkeysoftware/mds-cloud-sdk-node",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "SDK to interact with MDS suite of services",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
