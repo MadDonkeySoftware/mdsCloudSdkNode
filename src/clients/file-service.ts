@@ -11,7 +11,6 @@ import {
   CreateContainerResult,
   UploadFileResult,
 } from '../types';
-import { parse } from 'path';
 
 export class FileServiceClient {
   private _serviceUrl: string;
@@ -240,7 +239,6 @@ export class FileServiceClient {
     filePath: string,
   ): Promise<UploadFileResult> {
     const form = new FormData();
-    const filename = parse(filePath).base;
     form.append('sourceArchive', createReadStream(filePath));
 
     const url = urlJoin(this.serviceUrl, 'v1', 'upload', containerPath);
