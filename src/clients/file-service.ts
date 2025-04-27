@@ -239,7 +239,7 @@ export class FileServiceClient {
     filePath: string,
   ): Promise<UploadFileResult> {
     const form = new FormData();
-    form.append('file', createReadStream(filePath));
+    form.append('sourceArchive', createReadStream(filePath));
 
     const url = urlJoin(this.serviceUrl, 'v1', 'upload', containerPath);
     const options = await getRequestOptions({
